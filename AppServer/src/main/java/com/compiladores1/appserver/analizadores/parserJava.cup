@@ -1,0 +1,417 @@
+/*Seccion codigo Imports Package */
+package com.compiladores1.appserver.analizadores;
+import java_cup.runtime.*;
+import java.util.ArrayList;
+import com.compiladores1.appserver.simbolTable.*;
+
+ /* Codigo java del parser*/
+parser code {:   
+/*declaracion de variables para capturar Strigns para la tabla de simbolos*/
+        private String nombreClase = "";
+        private String tipoAux = "Int";
+        private int  contCambio = 0;
+        private ArrayList<Variable> variablesAux = new ArrayList<>();
+        private TableSimbol tabla = new TableSimbol();
+ /* Connect this parser to a scanner!*/
+	public parser(LexerJava analizadorLexico) {
+		super(analizadorLexico);
+	}
+
+        @Override
+        public void syntax_error(Symbol tok) {
+	    try{
+	        Token token = (Token) tok.value;
+	        report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+	    }catch(Exception e){
+                e.printStackTrace();
+	    }	
+	}
+
+    public void unrecovered_syntax_error(Symbol cur_token) {
+        if (cur_token.sym == sym.EOF) {
+             System.out.println("SE ESPERABA UNA LLAVE FINAL");  
+        }else{
+             Token token = (Token) cur_token.value;
+	     report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+        }
+    }
+:};
+/*seccion de Terminales*/ 
+
+terminal Token ENTERO, DECIMAL, LLAVEA, LLAVEC, PARENTESISA, PARENTESISC, PUNTO,COMA,PUNTOCOMA, DEFAULT;
+terminal Token DOPUNTO, MENOS, MAS, POR, DIVISION, IGUAL,EQUALS,OR,AND,MENORQ,MAYORQ,MAYOROI,MENOROI, CASO, DECIMALN;
+terminal Token NOTEQUALS, IMPORT, IDD, PRIVATE, PUBLIC, PROTECTED, FINAL, CLASS, INT, BOOLEAN, TRUE, CADENA, ENTERON;
+terminal Token STRING, NEGATION, CHAR, CARACTER, DOUBLE, IF, ELSE, FOR, WHILE, DO, SWITCH, BREAK, RETURN, NUEVO, FALSE;
+
+
+/*seccion de No Terminales*/
+non terminal inicio, item_punto, importacion, def_clase, def_metodo, def_variable, variables, items_coma, items, fin_asignar, asignacion;
+non terminal tipo, visibilidad, sentencias, sentencia, sentencias_global, sentencia_global, def_if, def_if_else, def_for, acceso_termin_var_metod;
+non terminal def_while, def_do_while, def_switch, cases, caso_sw, factor_casos, terminal_casos, salid, retorno, condition, logica, sentencias_switch;
+non terminal agrupation, def_and, def_or, condition_for, operation_for, constructor, parametros, llamada_metod, parametros_llamada;
+non terminal recurcion_new, increment, mas_igual, var_llamad_asigan, iddOption, siguiente, var_iterador, e_inicial, t_production, e_pri, t_pri, f_terminal;
+/*producciones para comodin para envio de variables a la tabla de simbolos*/
+non terminal comodin_Class, comodin_Metod, comodin_param;
+
+
+/* seccion de Gramatica : */
+
+start with  inicio;
+ 
+ 
+ /*Gramatica inicio*/
+ inicio ::= importacion def_clase
+        |
+        | error 
+        ;
+
+/*Gramatica importaciones*/
+ importacion ::= IMPORT IDD PUNTO item_punto 
+        | IMPORT IDD PUNTOCOMA importacion      {::}
+        |
+        | error importacion                     {::}
+        ;
+
+/*Gramatica itemes con punto seguidos, esto para la gramatica de importaciones*/
+ item_punto ::= IDD PUNTO item_punto
+        | IDD PUNTOCOMA importacion             {::}                
+        | POR PUNTOCOMA importacion             {::}
+        | error importacion                     {::}
+        ;
+
+/*Gramatica para definir una clase*/
+ def_clase ::= visibilidad comodin_Class LLAVEA sentencias_global LLAVEC    {: System.out.println("se llego al final de la clase con exito ---- }"); tabla.tosting();:}
+        | FINAL comodin_Class LLAVEA sentencias_global LLAVEC               {: System.out.println("se llego al final de la clase con exito ---- }"); tabla.tosting();:}
+        | comodin_Class LLAVEA sentencias_global LLAVEC                     {: System.out.println("se llego al final de la clase con exito ---- }"); tabla.tosting();:}
+        ;
+
+comodin_Class ::= CLASS IDD:nomClase                                        {: nombreClase = nomClase.getLexeme(); tabla.capturarClase(nombreClase);:}       
+                ;
+
+
+/*Gramatica para definir una funcion o metodo*/
+ def_metodo ::= visibilidad comodin_Metod LLAVEA sentencias  LLAVEC                      
+        | error  LLAVEC                    {::}
+        ;
+comodin_Metod ::= tipo IDD:nomMet PARENTESISA parametros PARENTESISC                   {: tabla.capturarMetodo(variablesAux,nomMet.getLexeme(),tipoAux); variablesAux.clear(); :}
+                | tipo IDD:nomMet PARENTESISA  PARENTESISC                             {: tabla.capturarMetodo(nomMet.getLexeme(),tipoAux);:}
+                | IDD:tipMetod IDD:nomMet PARENTESISA  PARENTESISC                     {: tabla.capturarMetodo(nomMet.getLexeme(),tipMetod.getLexeme());:} 
+                | IDD:tipMetod IDD:nomMet PARENTESISA  parametros PARENTESISC          {: tabla.capturarMetodo(variablesAux,nomMet.getLexeme(),tipMetod.getLexeme()); variablesAux.clear();:} 
+        ;
+
+/*Gramatica para definir una variable o/y asignarla, de forma global*/
+ def_variable ::= visibilidad variables                 {: tabla.actualizarVar(true,contCambio); contCambio = 0;:} 
+        | variables                                     {: tabla.actualizarVar(true,contCambio); contCambio = 0;:} 
+        | FINAL variables                               {: tabla.actualizarVar(true,contCambio); contCambio = 0;:} 
+        | visibilidad IDD:tipoVar items_coma            {: tabla.actualizarVar(true,contCambio,tipoVar.getLexeme()); contCambio = 0;:} 
+        | FINAL IDD:tipoVar items_coma                  {: tabla.actualizarVar(true,contCambio,tipoVar.getLexeme()); contCambio = 0;:} 
+        | IDD:tipoVar items_coma                        {: tabla.actualizarVar(true,contCambio,tipoVar.getLexeme()); contCambio = 0;:} 
+        ;
+ 
+
+/*Gramatica para variables, asiganion o definicion int a, b=1,c;*/
+ variables ::= tipo items_coma
+        ; 
+
+/*Gramatica para  items separadas por comas*/
+ items_coma ::= IDD:nomVar items                                       {:tabla.capturarVariableIndividual(nomVar.getLexeme(), tipoAux); contCambio++;:}                    
+                | error  PUNTOCOMA                               
+        ;
+
+/*Gramatica para asiganar o tener recursividad*/
+ items ::= IGUAL asignacion PUNTOCOMA
+        | IGUAL asignacion COMA items_coma
+        | COMA items_coma
+        | PUNTOCOMA
+        | error  PUNTOCOMA                                              {::} 
+        ; 
+
+/*Gramatica para anteponer final en asignar */
+ fin_asignar ::= FINAL
+        | 
+        ; 
+
+/*Gramatica para asignacion */
+ asignacion ::= condition
+            | NUEVO IDD PARENTESISA parametros_llamada PARENTESISC
+            | NUEVO IDD PARENTESISA  PARENTESISC
+            | error  PUNTOCOMA                              {::} 
+        ; 
+
+/*Gramatica para tipo */
+ tipo ::= INT                                   {:tipoAux = "int";:}                     
+        | BOOLEAN                               {:tipoAux = "boolean";:}                     
+        | DOUBLE                                {:tipoAux = "double";:}                     
+        | STRING                                {:tipoAux = "String";:}                     
+        | CHAR                                  {:tipoAux = "char";:}                     
+        ; 
+
+/*Gramatica para visibilidad */
+ visibilidad ::= PUBLIC fin_asignar
+                | PROTECTED fin_asignar
+                | PRIVATE fin_asignar
+                ; 
+        
+/*Gramatica para sentencias, pueden venir dentro de una funcion o metodo */
+ sentencias ::= sentencia sentencias
+        | 
+        | error  sentencias                              {::} 
+        ;
+
+/*Gramatica para sentencias, globales o que directamente estan en la clase */
+ sentencias_global ::= sentencia_global sentencias_global
+        |
+        ;
+
+/*Gramatica para sentencia global  */
+ sentencia_global ::= constructor                    
+        | def_variable
+        | def_metodo                                
+        ;
+
+/*Gramatica para sentencia, esta puede venir dentro de las funciones o metodos  */
+ sentencia ::=  def_if                              
+        | def_if_else                              
+        | def_while                                
+        | def_do_while                             
+        | def_for                                   
+        | FINAL variables                               {:tabla.actualizarVar(false,contCambio); contCambio = 0;:}                         
+        | salid                                    
+        | variables                                     {:tabla.actualizarVar(false,contCambio); contCambio = 0;:}
+        | IDD iddOption
+        | IDD:tipoVar items_coma                        {:tabla.actualizarVar(false,contCambio,tipoVar.getLexeme()); contCambio = 0;:}
+        | def_switch                               
+        | FINAL IDD:tipoVar items_coma                  {:tabla.actualizarVar(false,contCambio,tipoVar.getLexeme()); contCambio = 0;:}                  
+        ;
+
+iddOption ::= increment                
+            | var_llamad_asigan mas_igual asignacion PUNTOCOMA      
+            | PARENTESISA PARENTESISC var_llamad_asigan mas_igual asignacion PUNTOCOMA 
+            | PARENTESISA parametros_llamada PARENTESISC var_llamad_asigan mas_igual asignacion PUNTOCOMA 
+            | mas_igual asignacion PUNTOCOMA                      
+            | llamada_metod PUNTOCOMA
+            | PARENTESISA  PARENTESISC PUNTOCOMA
+            | PARENTESISA parametros_llamada PARENTESISC PUNTOCOMA
+            | PARENTESISA  PARENTESISC llamada_metod PUNTOCOMA
+            | PARENTESISA parametros_llamada PARENTESISC llamada_metod PUNTOCOMA
+            ;
+
+var_llamad_asigan ::=  PUNTO IDD PARENTESISA  PARENTESISC var_llamad_asigan
+                    | PUNTO IDD PARENTESISA parametros_llamada  PARENTESISC var_llamad_asigan
+                    | PUNTO IDD var_llamad_asigan
+                    | PUNTO IDD
+                    |  error  sentencias                              {::} 
+                    ;
+
+/*produccion para el +=*/
+mas_igual ::= IGUAL
+        | MAS IGUAL
+        ;
+
+/*increment producction*/
+increment ::= MAS MAS PUNTOCOMA                 
+        | MENOS MENOS PUNTOCOMA                 
+        | var_llamad_asigan MAS MAS PUNTOCOMA
+        | var_llamad_asigan MENOS MENOS PUNTOCOMA
+        ;
+
+/*Gramatica para if  */
+ def_if ::= IF PARENTESISA condition  PARENTESISC LLAVEA sentencias LLAVEC 
+        ;
+
+/*Gramatica para IF_ELSE  */
+ def_if_else ::= def_if ELSE LLAVEA sentencias LLAVEC 
+        ;
+
+/*Gramatica para FOR  */
+ def_for ::= FOR PARENTESISA condition_for PARENTESISC  LLAVEA sentencias LLAVEC 
+        ;
+
+/*Gramatica para while  */
+ def_while ::= WHILE PARENTESISA condition PARENTESISC  LLAVEA sentencias LLAVEC 
+        ;
+
+/*Gramatica para do_while  */
+ def_do_while ::= DO LLAVEA sentencias LLAVEC WHILE PARENTESISA condition PARENTESISC PUNTOCOMA
+        ;
+
+/*Gramatica para switch  */
+ def_switch ::= SWITCH PARENTESISA IDD PARENTESISC LLAVEA cases LLAVEC
+        ;
+
+/*Gramatica para casos dentro del switch  */
+ cases ::= caso_sw salid cases
+        | caso_sw cases
+        |
+        | error  cases                              {::} 
+        ;
+  
+/*Gramatica para casos */
+ caso_sw ::= CASO agrupation DOPUNTO sentencias_switch           
+            | DEFAULT DOPUNTO sentencias_switch                  
+            ;
+
+sentencias_switch ::= factor_casos sentencias_switch
+        | 
+        ;            
+
+factor_casos ::=  def_if                                    
+        | def_if_else                                       
+        | def_while                                          
+        | def_do_while                                     
+        | def_for                                           
+        | FINAL variables                               {:tabla.actualizarVar(false,contCambio); contCambio = 0;:}                                 
+        | variables                                     {:tabla.actualizarVar(false,contCambio); contCambio = 0;:}
+        | IDD iddOption
+        | IDD:tipoVar items_coma                        {:tabla.actualizarVar(false,contCambio,tipoVar.getLexeme()); contCambio = 0;:}
+        | def_switch
+        | FINAL IDD:tipoVar items_coma                   {:tabla.actualizarVar(false,contCambio,tipoVar.getLexeme()); contCambio = 0;:}
+        ;
+
+/*Gramatica para rerminal de los cosso */
+ terminal_casos ::= IDD
+                | IDD acceso_termin_var_metod
+                | IDD PARENTESISA  PARENTESISC
+                | IDD PARENTESISA parametros_llamada PARENTESISC
+                | IDD PARENTESISA  PARENTESISC acceso_termin_var_metod
+                | IDD PARENTESISA parametros_llamada PARENTESISC acceso_termin_var_metod
+                | ENTERO
+                | DECIMAL
+                | CARACTER
+                | CADENA 
+                | ENTERON
+                | DECIMALN
+                ;
+
+acceso_termin_var_metod ::=  PUNTO IDD PARENTESISA  PARENTESISC acceso_termin_var_metod
+                    | PUNTO IDD PARENTESISA parametros_llamada PARENTESISC acceso_termin_var_metod
+                    | PUNTO IDD acceso_termin_var_metod
+                    | PUNTO IDD
+                    | PUNTO IDD PARENTESISA parametros_llamada  PARENTESISC 
+                    | PUNTO IDD PARENTESISA  PARENTESISC 
+                    | error  PARENTESISC                              {::} 
+                    ;
+
+/*Gramatica para sali de alguna sentencia */
+ salid ::= BREAK PUNTOCOMA
+        | RETURN retorno PUNTOCOMA
+        ;
+
+/*Gramatica para retorna algo o nada*/
+ retorno ::= condition
+        |   
+        ;
+
+/*Gramatica para las condiciones*/
+ condition ::=  logica                          
+            | def_and                           
+            | def_or                            
+            | NEGATION def_and
+            | NEGATION def_or
+            | NEGATION logica
+            | error  PARENTESISC                              {::} 
+            ;
+
+/*Gramatica para las condicione logica*/
+ logica ::= agrupation MAYORQ agrupation
+            | agrupation MENORQ agrupation
+            | agrupation MAYOROI agrupation
+            | agrupation MENOROI agrupation
+            | agrupation NOTEQUALS agrupation
+            | agrupation EQUALS agrupation
+            | TRUE
+            | FALSE
+            | e_inicial
+            | CADENA PUNTO PARENTESISA PARENTESISC
+            | CADENA PUNTO PARENTESISA parametros_llamada PARENTESISC
+            ;
+
+/*Gramatica para las agrupaciones*/
+ agrupation ::= e_inicial
+            ;
+
+/*Gramatica para las e_inicial*/
+ e_inicial ::= t_production e_pri
+            ;
+
+ e_pri ::= MAS t_production e_pri
+        | MENOS t_production e_pri
+        |
+        ;
+
+ t_production ::= f_terminal t_pri
+        ;
+
+ t_pri ::= POR f_terminal t_pri
+        |  DIVISION f_terminal t_pri
+        |
+        ;
+
+f_terminal ::= PARENTESISA e_inicial PARENTESISC
+        | terminal_casos 
+        ;
+
+
+/*Gramatica para logica de and*/
+ def_and ::= logica AND logica
+            | logica AND logica AND condition
+            | logica AND logica OR condition
+            ;
+
+/*Gramatica para logica de or*/
+ def_or ::= logica OR logica
+            | logica OR logica OR condition
+            | logica OR logica AND condition
+            ;
+
+/*Gramatica para logica de condidicon del for*/
+ condition_for ::= var_iterador IDD  IGUAL IDD PUNTOCOMA condition PUNTOCOMA operation_for
+            | var_iterador IDD  IGUAL ENTERO PUNTOCOMA condition PUNTOCOMA operation_for
+            | var_iterador IDD  IGUAL DECIMAL PUNTOCOMA condition PUNTOCOMA operation_for
+            ;
+
+var_iterador ::= INT
+            | DOUBLE
+            |
+            ;
+
+operation_for ::= IDD MAS MAS
+            | IDD MENOS MENOS
+            | IDD IGUAL condition
+            ;
+
+/*gramatica para el constructor*/
+constructor ::= visibilidad IDD PARENTESISA parametros PARENTESISC LLAVEA sentencias LLAVEC
+            | visibilidad IDD PARENTESISA  PARENTESISC LLAVEA sentencias LLAVEC
+            ;
+
+/*gramatica para parematros*/
+parametros ::= comodin_param
+            | comodin_param COMA parametros
+            | error  PARENTESISC                              {::} 
+            ;
+comodin_param ::= tipo IDD:nomPar              {: variablesAux.add(new Variable(nomPar.getLexeme(),tipoAux));:}
+                | IDD:tipoPar IDD:nomPar       {: variablesAux.add(new Variable(nomPar.getLexeme(),tipoPar.getLexeme()));:}
+                ;
+
+/*gramatica para llamada de metodos o funciones*/
+llamada_metod ::= PUNTO IDD PARENTESISA  PARENTESISC llamada_metod
+                | PUNTO IDD PARENTESISA parametros_llamada PARENTESISC llamada_metod
+                | PUNTO IDD llamada_metod
+                | PUNTO IDD PARENTESISA parametros_llamada  PARENTESISC 
+                | PUNTO IDD PARENTESISA  PARENTESISC 
+                ;
+
+/*gramatica para los parametros de las llamadas*/
+parametros_llamada ::= condition COMA parametros_llamada
+            | condition
+            | NUEVO recurcion_new
+            ;
+
+recurcion_new ::= IDD PARENTESISA parametros_llamada PARENTESISC siguiente
+                | IDD PARENTESISA  PARENTESISC siguiente
+                ;
+
+siguiente ::= COMA parametros_llamada
+            |
+            ;
