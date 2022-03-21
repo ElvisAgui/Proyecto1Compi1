@@ -1,7 +1,8 @@
 /*primer seccion codigo de usuario*/
 //package ;
 package com.compiladores1.appserver.analizadores;
-
+import java.util.ArrayList;
+import com.compiladores1.appserver.simbolTable.*;
 import java_cup.runtime.*;
 
 %%
@@ -13,11 +14,14 @@ import java_cup.runtime.*;
 %unicode
 %cup
 %state CADE
+%state COMENTMULTILINEA
+%state COMENTLINEA
 
 
 WhiteSpace = [\r|\n|\r\n|\s\t] | [\t\f]
-LineTerminator = \r|\n|\r\n
-InputCharacter = [^\r\n]
+INICIOMULTILINEA = "/*"
+FINMULTILINEA = "*/"
+INICIOLINEA="//"
 LETRA = [a-zA-Z|ñ]
 DECIMAL = ([0-9]+[.]([0-9]+))
 ENTERO = [0-9]+
@@ -73,21 +77,26 @@ TRUE = "true"
 FLASE = "false"
 IDD = (({LETRA}|{DIGONALB})({LETRA}|{ENTERO}|{DIGONALB})*)
 CARACTER = "'"[^]"'"
-//CADENA = ({COMILLAS}{IDD}{COMILLAS})
-COMMET = ({TraditionalComment} | {EndOfLineComment} | {DocumentationComment})
-TraditionalComment   = "/*" [^*] ~"*/" | "/*" "*"+ "/"
-EndOfLineComment     = "//" {InputCharacter}* {LineTerminator}?
-DocumentationComment = "/**" {CommentContent} "*"+ "/"
-CommentContent       = ( [^*] | \*+ [^/*] )*
+
+
 /*comodin %{ para agregar codigo java*/
 %{
   
     private Symbol symbol(int type, String lexema) {
         return new Symbol(type, new Token(lexema, yyline + 1, yycolumn + 1));
     }
-    
-	String cadena ="";
+    private TableSimbol tabla = new TableSimbol();
+    private String cadena ="";
+    private String comentario="";
 
+
+    
+    public void setTabla(TableSimbol tabla){
+        this.tabla = tabla;
+    }
+    public TableSimbol getTable(){
+        return this.tabla;
+    }
     
 %}
 
@@ -101,6 +110,8 @@ CommentContent       = ( [^*] | \*+ [^/*] )*
 /* reglas lexicas */
 <YYINITIAL> {
 {WhiteSpace} 	{/* ignoramos */}
+{INICIOMULTILINEA}          {yybegin(COMENTMULTILINEA);} 
+{INICIOLINEA}               {yybegin(COMENTLINEA);}
 {CARACTER}                  { return symbol(sym.CARACTER,yytext()); }
 {ENTERON}                   { return symbol(sym.ENTERON,yytext());}
 {DECIMALN}                  { return symbol(sym.DECIMALN,yytext());}
@@ -152,17 +163,27 @@ CommentContent       = ( [^*] | \*+ [^/*] )*
 {BREAK}                     { return symbol(sym.BREAK,yytext());}
 {RETURN}                    { return symbol(sym.RETURN,yytext());}
 {NUEVO}                     { return symbol(sym.NUEVO,yytext());}
-{COMMET}                    { /*return symbol(sym.COMMET,yytext());*/}
 {FLASE}                     { return symbol(sym.FALSE,yytext());}
 {FINAL}                     { return symbol(sym.FINAL,yytext());}
 {IDD}                       { return symbol(sym.IDD,yytext());}
-{COMILLAS} {System.out.println("Lex \" "+yytext()); yybegin(CADE);}
+{COMILLAS}                  {yybegin(CADE);}
 
 }
 <CADE>{
-{COMILLAS} {System.out.println("STRING :"+cadena); cadena=""; yybegin(YYINITIAL); return symbol(sym.CADENA, cadena);}
+{COMILLAS} { yybegin(YYINITIAL); return symbol(sym.CADENA, cadena);}
 [^] {cadena+=yytext();}
+}
 
+<COMENTMULTILINEA>{
+{FINMULTILINEA} {yybegin(YYINITIAL); this.tabla.getComentarios().add(comentario);}
+{POR}       {;}
+(\n)		{;}
+[^] {comentario+=yytext();}
+}
+
+<COMENTLINEA>{
+(\n) {yybegin(YYINITIAL); this.tabla.getComentarios().add(comentario);}
+[^] {comentario+=yytext();}
 }
 
 [^] {System.out.println("error lexico "+ yytext());}

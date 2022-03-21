@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class Metodo {
     private String nombre;
     private String tipo;
-    private int numParametros;
+    private int numParametros = 0;
     private ArrayList<Variable> variables = new ArrayList<>();;
 
     public Metodo() {
@@ -57,8 +57,8 @@ public class Metodo {
         return variables;
     }
 
-    public void setVariables(ArrayList<Variable> graficas) {
-        this.variables = graficas;
+    public void setVariables(ArrayList<Variable> variables) {
+        this.variables = variables;
     }
 
     @Override

@@ -27,6 +27,13 @@ parser code {:
 	    }	
 	}
 
+        public void noEsConstructor(Token token){
+              if(!token.getLexeme().equals(nombreClase)){
+                      System.out.println("error de constructor");
+                    report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+              }  
+        }
+
     public void unrecovered_syntax_error(Symbol cur_token) {
         if (cur_token.sym == sym.EOF) {
              System.out.println("SE ESPERABA UNA LLAVE FINAL");  
@@ -34,6 +41,10 @@ parser code {:
              Token token = (Token) cur_token.value;
 	     report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
         }
+    }
+
+    public TableSimbol getTablaSimbolo(){
+            return this.tabla;
     }
 :};
 /*seccion de Terminales*/ 
@@ -51,7 +62,7 @@ non terminal def_while, def_do_while, def_switch, cases, caso_sw, factor_casos, 
 non terminal agrupation, def_and, def_or, condition_for, operation_for, constructor, parametros, llamada_metod, parametros_llamada;
 non terminal recurcion_new, increment, mas_igual, var_llamad_asigan, iddOption, siguiente, var_iterador, e_inicial, t_production, e_pri, t_pri, f_terminal;
 /*producciones para comodin para envio de variables a la tabla de simbolos*/
-non terminal comodin_Class, comodin_Metod, comodin_param;
+non terminal comodin_Class, comodin_Metod, comodin_param,comodin_Consturc;
 
 
 /* seccion de Gramatica : */
@@ -381,9 +392,12 @@ operation_for ::= IDD MAS MAS
             ;
 
 /*gramatica para el constructor*/
-constructor ::= visibilidad IDD PARENTESISA parametros PARENTESISC LLAVEA sentencias LLAVEC
-            | visibilidad IDD PARENTESISA  PARENTESISC LLAVEA sentencias LLAVEC
+constructor ::= visibilidad comodin_Consturc LLAVEA sentencias LLAVEC
             ;
+
+comodin_Consturc ::= IDD:nomMet PARENTESISA parametros PARENTESISC              {: noEsConstructor(nomMet); tabla.capturarMetodo(variablesAux,nomMet.getLexeme(),"Constructor"); variablesAux.clear(); :}
+                | IDD:nomMet PARENTESISA  PARENTESISC                           {: noEsConstructor(nomMet); tabla.capturarMetodo(nomMet.getLexeme(),"Constructor");:}                       
+                ;
 
 /*gramatica para parematros*/
 parametros ::= comodin_param

@@ -41,7 +41,7 @@ public class Clase {
         return "Clase{" + "nombre=" + nombre + ", funciones=" + funciones() + '}';
     }
 
-   public String funciones(){
+   private String funciones(){
        String funtion = "";
        funtion = funciones.stream().map(funcione -> " "+funcione+" ").reduce(funtion, String::concat);
        return funtion;

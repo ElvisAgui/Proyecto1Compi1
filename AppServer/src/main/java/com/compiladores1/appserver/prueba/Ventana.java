@@ -2,10 +2,11 @@ package com.compiladores1.appserver.prueba;
 
 import com.compiladores1.appserver.analizadores.LexerJava;
 import com.compiladores1.appserver.analizadores.parser;
+import com.compiladores1.appserver.generadorProyect.GeneradoJson;
+import com.compiladores1.appserver.simbolTable.ManejadorTable;
+import com.compiladores1.appserver.simbolTable.TableSimbol;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -18,6 +19,8 @@ public class Ventana extends javax.swing.JFrame {
      */
     private parser parse;
     private LexerJava lexer;
+    TableSimbol tabla1 = new TableSimbol();
+    TableSimbol tabla2 = new TableSimbol();
 
     public Ventana() {
 
@@ -37,6 +40,7 @@ public class Ventana extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -51,6 +55,13 @@ public class Ventana extends javax.swing.JFrame {
             }
         });
 
+        jButton2.setText("jButton1");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -62,7 +73,9 @@ public class Ventana extends javax.swing.JFrame {
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 964, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(404, 404, 404)
-                        .addComponent(jButton1)))
+                        .addComponent(jButton1)
+                        .addGap(39, 39, 39)
+                        .addComponent(jButton2)))
                 .addContainerGap(16, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -71,7 +84,9 @@ public class Ventana extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 418, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jButton1)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(jButton2))
                 .addContainerGap(33, Short.MAX_VALUE))
         );
 
@@ -94,6 +109,7 @@ public class Ventana extends javax.swing.JFrame {
         Reader reader = new StringReader(jTextArea1.getText());
         this.lexer = new LexerJava(reader);
         this.parse = new parser(lexer);
+        this.tabla1 = this.parse.getTablaSimbolo();
         try {
             this.parse.parse();
         } catch (Exception ex) {
@@ -101,9 +117,28 @@ public class Ventana extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        Reader reader = new StringReader(jTextArea1.getText());
+
+        LexerJava  lexers = new LexerJava(reader);
+        parser parses = new parser(lexers);
+        this.tabla2 = parses.getTablaSimbolo();
+        try {
+            parses.parse();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        ManejadorTable manejo = new ManejadorTable(tabla1, tabla2);
+        manejo.realizarAcciones();
+        GeneradoJson generic = new GeneradoJson(manejo.getProyecto(), manejo.getScore());
+        System.out.println(generic.generarJson());
+    }//GEN-LAST:event_jButton2ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextArea1;

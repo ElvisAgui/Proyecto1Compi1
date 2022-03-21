@@ -1,4 +1,3 @@
-
 package com.compiladores1.appserver.simbolTable;
 
 /**
@@ -6,12 +5,13 @@ package com.compiladores1.appserver.simbolTable;
  * @author elvis_agui
  */
 public class Variable {
+
     private String nombre;
     private String tipo;
-    private String funcionPadre;
+    private String funcionPadre = "";
+    private boolean yaVerificada = false;
 
-    
-    public Variable(){
+    public Variable() {
     }
 
     public Variable(String nombre, String tipo, String funcionPadre) {
@@ -19,12 +19,12 @@ public class Variable {
         this.tipo = tipo;
         this.funcionPadre = funcionPadre;
     }
-    
-      public Variable(String nombre, String tipo) {
+
+    public Variable(String nombre, String tipo) {
         this.nombre = nombre;
         this.tipo = tipo;
     }
-    
+
     public String getNombre() {
         return nombre;
     }
@@ -49,12 +49,23 @@ public class Variable {
         this.funcionPadre = funcionPadre;
     }
 
+    public void funcionPadre(String funcionPadre) {
+        this.funcionPadre = this.funcionPadre + "," + funcionPadre;
+    }
+
+    public boolean isYaVerificada() {
+        return yaVerificada;
+    }
+
+    public void setYaVerificada(boolean yaVerificada) {
+        this.yaVerificada = yaVerificada;
+    }
+    
+    
+
     @Override
     public String toString() {
         return "Variable{" + "nombre=" + nombre + ", tipo=" + tipo + ", funcionPadre=" + funcionPadre + '}';
     }
-    
-    
-    
-    
+
 }
