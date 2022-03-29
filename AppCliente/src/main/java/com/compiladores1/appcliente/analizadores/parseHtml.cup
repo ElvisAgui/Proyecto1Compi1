@@ -1,0 +1,168 @@
+/*Seccion codigo Imports Package */
+package com.compiladores1.appcliente.analizadores;
+import java_cup.runtime.*;
+import com.compiladores1.appcliente.analizadores.*;
+import com.compiladores1.appcliente.tableSimbol.TableSimbol;
+
+
+ /* Codigo java del parser*/
+parser code {:   
+/*declaracion de variables para capturar Strigns para la tabla de simbolos*/
+
+ /* Connect this parser to a scanner!*/
+        private TableSimbol tabla = new TableSimbol();
+        private String nombreVariable = "";
+        private String tipoVariable = "";
+        private String funcionPadre="";
+        private String nombreMetodo ="";
+        private String tipoMetodo="";
+        private String parametros="";
+        private String segComenario= "";
+
+
+	public parser(LexerHtml analizadorLexico) {
+		super(analizadorLexico);
+	}
+
+        @Override
+        public void syntax_error(Symbol tok) {
+	    try{
+	        Token token = (Token) tok.value;
+	        report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+	    }catch(Exception e){
+                e.printStackTrace();
+	    }	
+	}
+
+
+    public void unrecovered_syntax_error(Symbol cur_token) {
+        if (cur_token.sym == sym.EOF) {
+             System.out.println("SE ESPERABA UNA LLAVE FINAL");  
+        }else{
+             Token token = (Token) cur_token.value;
+	     report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+        }
+    }
+
+   
+:};
+
+
+/*seccion de Terminales*/ 
+
+terminal Token HTMABRE,ENTERO,DECIMAL,HTMCIERRE,H1ABRE,H1CIERRE,H2ABRE,H2CIERRE,TABLAABRE,TABLACIERRE,TRABRE,TRCIERRE,THABRE;
+terminal Token THCIERRE.TDABRE,TDCIERRE,SALTO,FORABRE,FORCIERRE,PUNTO,DOSPUNTO,HASTA,MAYOR,MENOR,POSABERTURA,POSCERRADURA,COMA;
+terminal Token PUNTOCOMA, IDD,COMODIN,PARENTESISA,PARENTESISC,IGUAL,MENOS,MAS,POR,DIVISION,COMILLAS,CORCHETEA,CORCHETEC,INTEGER,STRING;
+terminal Token SCORE, RESULT, VARIABLES, CLASES, NOMBRE,TIPO,FUNCION,METODOS,COMENTARIOS,TEXTO,PARAMTETROS;
+
+/*seccion de No Terminales*/
+non terminal def_variable,variable_integer,variable_String,strin,items_coma,items,asignacion,variable_integer;
+non terminal inte,items_int,items_coma_B,asignacionInt;
+non terminal Double operation;
+non terminal String operationString, concatenacion;
+
+
+/* agregado de precedencias */
+
+precedence left MENOS, MAS;
+precedence left POR, DIVISION;
+
+/*declaracion de variables*/
+def_variable ::= variable_integer def_variable
+            | variable_String def_variable
+            |
+            ;
+
+/*Gramatica para variables, asiganion o definicion int a, b=1,c;*/
+variable_String ::= strin items  
+                ;     
+strin ::= STRING IDD
+        ;
+
+/*Gramatica para  items separadas por comas*/
+ items_coma ::= IDD:nomVar items                                                        
+                | error  PUNTOCOMA                               
+        ;
+
+/*Gramatica para asiganar o tener recursividad*/
+ items ::= asignacion PUNTOCOMA
+        | asignacion COMA items_coma
+        | COMA items_coma
+        | PUNTOCOMA
+        | error  PUNTOCOMA                                              {::} 
+        ; 
+
+
+asignacion ::=  IGUAL operationString
+            ;
+
+operationString ::=  CADENA MAS concatenacion
+                | CADENA
+                | subTerminalTabla MAS concatenacion
+                | subTerminalTabla
+                | IDD                           {:/*verificar si es string */:}
+                | IDD MAS concatenacion         {:/*verificar si es string */:}
+                ;
+            
+
+concatenacion ::= concatenacion:numero1 MAS concatenacion:numero2				
+	        | NUMERO:num													
+	        | DECIMAL:num
+            | terminalTabla
+            | CADENA
+            | IDD                       {:/*verificar si es string */:}
+	        ;
+
+/*variables de tipo integer*/
+variable_integer ::= inte items_int  
+                ;     
+inte ::= INTEGER IDD
+        ;
+
+items_int ::= asignacionInt PUNTOCOMA
+        | asignacionInt COMA items_coma_B
+        | COMA items_coma_B
+        | PUNTOCOMA
+        | error  PUNTOCOMA                                              {::} 
+        ; 
+
+ items_coma_B ::= IDD:nomVar items_int                                                        
+                | error  PUNTOCOMA                               
+        ;
+
+asignacionInt ::=  IGUAL operation
+            ;
+
+operation ::= operation:numero1 MAS:operador operation:numero2		
+	| operation:numero1 MENOS:operador operation:numero2			
+	| operation:numero1 POR:operador operation:numero2				
+	| operation:numero1 DIVISION:operador operation:numero2			
+	| NUMERO:num													
+	| DECIMAL:num
+    | parametros
+    | IDD			                                    {:/*verificacion que sea un numero*/:}										
+	| PARENTESISA operation:operacion PARENTESISC					 														{::}
+	;
+
+/*Llamada a variables globales*/
+subTerminalTabla ::= RESULT PUNTO def_var_Globla
+                ;
+def_var_Globla ::= SCORE
+                | CLASES PUNTO CORCHETEA index CORCHETEC PUNTO NOMBRE
+                | VARIABLES PUNTO CORCHETEA index CORCHETEC PUNTO NOMBRE
+                | VARIABLES PUNTO CORCHETEA index CORCHETEC PUNTO TIPO
+                | VARIABLES PUNTO CORCHETEA index CORCHETEC PUNTO FUNCION
+                | METODOS PUNTO CORCHETEA index CORCHETEC PUNTO NOMBRE
+                | METODOS PUNTO CORCHETEA index CORCHETEC PUNTO TIPO
+                | COMENTARIOS PUNTO CORCHETEA index CORCHETEC punto TEXTO
+                ;
+
+terminalTabla ::= subTerminalTabla 
+            | parametros   
+            ;
+parametros ::= METODOS PUNTO CORCHETEA index CORCHETEC PUNTO PARAMTETROS
+            ;
+
+index ::= ENTERO
+        |IDD
+        ;

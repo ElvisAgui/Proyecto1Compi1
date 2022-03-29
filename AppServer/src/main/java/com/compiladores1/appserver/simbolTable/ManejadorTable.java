@@ -11,10 +11,10 @@ public class ManejadorTable {
     private TableSimbol proyect1;
     private TableSimbol proyecto2;
     private TableSimbol proyecto = new TableSimbol();
-    private int cantidadComentRepit = 0;
-    private int cantidadClasesRepit = 0;
-    private int cantidadMetodRepit = 0;
-    private int cantidadVariableRepit = 0;
+    private double cantidadComentRepit = 0;
+    private double cantidadClasesRepit = 0;
+    private double cantidadMetodRepit = 0;
+    private double cantidadVariableRepit = 0;
     private double Score = 0;
 
     public ManejadorTable() {
@@ -37,7 +37,18 @@ public class ManejadorTable {
      * calcula el score total
      */
     private void calculoScore() {
-        
+        if (this.proyect1.getComentarios().size() > 0 && this.proyecto2.getComentarios().size() > 0) {
+            this.Score += (cantidadComentRepit / (this.proyect1.getComentarios().size() + this.proyecto2.getComentarios().size())) * 0.25;
+        }
+        if (this.proyect1.getClases().size() > 0 && this.proyecto2.getClases().size() > 0) {
+            this.Score += (cantidadClasesRepit / (this.proyect1.getClases().size() + this.proyecto2.getClases().size())) * 0.25;
+        }
+        if (this.proyect1.getVariables().size() > 0 && this.proyecto2.getVariables().size() > 0) {
+            this.Score += (cantidadVariableRepit / (this.proyect1.getVariables().size() + this.proyecto2.getVariables().size())) * 0.25;
+        }
+        if (this.proyect1.getMetodos().size() > 0 && this.proyecto2.getMetodos().size() > 0) {
+            this.Score += (cantidadMetodRepit / (this.proyect1.getMetodos().size() + this.proyecto2.getMetodos().size())) * 0.25;
+        }
 
     }
 
@@ -141,12 +152,14 @@ public class ManejadorTable {
     private boolean comparacionFuncionesClase(Clase clase, Clase clase1) {
         boolean iguales = true;
         if (clase.getFunciones().size() == clase1.getFunciones().size()) {
-            ArrayList<String> funciones = (ArrayList) clase1.getFunciones().clone();
-            for (String funcione : clase.getFunciones()) {
-                funciones.remove(funcione);
-            }
-            if (!funciones.isEmpty()) {
-                iguales = false;
+            if (!clase.getFunciones().isEmpty()) {
+                ArrayList<String> funciones = (ArrayList) clase1.getFunciones().clone();
+                for (String funcione : clase.getFunciones()) {
+                    funciones.remove(funcione);
+                }
+                if (!funciones.isEmpty()) {
+                    iguales = false;
+                }
             }
         } else {
             iguales = false;
@@ -177,7 +190,7 @@ public class ManejadorTable {
     private void comprobarMetodo(Metodo metodo) {
         for (int i = 0; i < this.proyecto2.getMetodos().size(); i++) {
             Metodo metodo1 = this.proyecto2.getMetodos().get(i);
-            if (metodo.getNombre().equals(metodo1.getNombre()) && comporbacionParametros(metodo, metodo1)) {
+            if (metodo.getNombre().equals(metodo1.getNombre()) && comporbacionParametros(metodo, metodo1) && metodo.getTipo().equals(metodo1.getTipo())) {
                 if (!metodYaAgregado(metodo)) {
                     aumentarRepitMetodo(metodo);
                 }
@@ -197,7 +210,7 @@ public class ManejadorTable {
     private void aumentarRepitMetodo(Metodo metodo) {
         for (int i = 0; i < this.proyecto2.getMetodos().size(); i++) {
             Metodo metodo1 = this.proyecto2.getMetodos().get(i);
-            if (metodo.getNombre().equals(metodo1.getNombre()) && comporbacionParametros(metodo, metodo1)) {
+            if (metodo.getNombre().equals(metodo1.getNombre()) && comporbacionParametros(metodo, metodo1) && metodo.getTipo().equals(metodo1.getTipo())) {
                 cantidadMetodRepit++;
             }
         }
@@ -213,7 +226,7 @@ public class ManejadorTable {
     private boolean metodYaAgregado(Metodo metodo) {
         boolean yaAgregado = false;
         for (Metodo metodo1 : proyecto.getMetodos()) {
-            if (metodo.getNombre().equals(metodo1.getNombre()) && comporbacionParametros(metodo, metodo1)) {
+            if (metodo.getNombre().equals(metodo1.getNombre()) && comporbacionParametros(metodo, metodo1) && metodo.getTipo().equals(metodo1.getTipo())) {
                 yaAgregado = true;
                 break;
             }
@@ -253,8 +266,8 @@ public class ManejadorTable {
         }
         return iguales;
     }
-    
-    private void noVerrific(ArrayList<Variable> variables){
+
+    private void noVerrific(ArrayList<Variable> variables) {
         for (Variable variable : variables) {
             variable.setYaVerificada(false);
         }
@@ -353,38 +366,6 @@ public class ManejadorTable {
 
     public void setProyecto2(TableSimbol proyecto2) {
         this.proyecto2 = proyecto2;
-    }
-
-    public int getCantidadComentRepit() {
-        return cantidadComentRepit;
-    }
-
-    public void setCantidadComentRepit(int cantidadComentRepit) {
-        this.cantidadComentRepit = cantidadComentRepit;
-    }
-
-    public int getCantidadClasesRepit() {
-        return cantidadClasesRepit;
-    }
-
-    public void setCantidadClasesRepit(int cantidadClasesRepit) {
-        this.cantidadClasesRepit = cantidadClasesRepit;
-    }
-
-    public int getCantidadMetodRepit() {
-        return cantidadMetodRepit;
-    }
-
-    public void setCantidadMetodRepit(int cantidadMetodRepit) {
-        this.cantidadMetodRepit = cantidadMetodRepit;
-    }
-
-    public int getCantidadVariableRepit() {
-        return cantidadVariableRepit;
-    }
-
-    public void setCantidadVariableRepit(int cantidadVariableRepit) {
-        this.cantidadVariableRepit = cantidadVariableRepit;
     }
 
     public double getScore() {

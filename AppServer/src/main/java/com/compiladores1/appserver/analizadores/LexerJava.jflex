@@ -4,6 +4,8 @@ package com.compiladores1.appserver.analizadores;
 import java.util.ArrayList;
 import com.compiladores1.appserver.simbolTable.*;
 import java_cup.runtime.*;
+import com.compiladores1.appserver.errores.Errors;
+
 
 %%
 /*segunda seccion configuracion*/
@@ -75,7 +77,7 @@ DEFAULT = "default"
 CASO = "case"
 TRUE = "true"
 FLASE = "false"
-IDD = (({LETRA}|{DIGONALB})({LETRA}|{ENTERO}|{DIGONALB})*)
+IDD = ((({LETRA}|{DIGONALB})({LETRA}|{ENTERO}|{DIGONALB})*({LETRA}))|{LETRA})
 CARACTER = "'"[^]"'"
 
 
@@ -88,14 +90,32 @@ CARACTER = "'"[^]"'"
     private TableSimbol tabla = new TableSimbol();
     private String cadena ="";
     private String comentario="";
+    private ArrayList<Errors> errores = new ArrayList<>();
+    private boolean isProyecto1 = true;
 
 
-    
+
+    public void setErrores(ArrayList errores) {
+        this.errores = errores;
+    }
+
+    public ArrayList getErrores() {
+        return errores;
+    }
+
+
     public void setTabla(TableSimbol tabla){
         this.tabla = tabla;
     }
     public TableSimbol getTable(){
         return this.tabla;
+    }
+         public boolean isIsProyecto1() {
+        return isProyecto1;
+    }
+
+    public void setIsProyecto1(boolean isProyecto1) {
+        this.isProyecto1 = isProyecto1;
     }
     
 %}
@@ -175,16 +195,16 @@ CARACTER = "'"[^]"'"
 }
 
 <COMENTMULTILINEA>{
-{FINMULTILINEA} {yybegin(YYINITIAL); this.tabla.getComentarios().add(comentario);}
+{FINMULTILINEA} {yybegin(YYINITIAL); this.tabla.getComentarios().add(comentario); comentario = "";}
 {POR}       {;}
 (\n)		{;}
 [^] {comentario+=yytext();}
 }
 
 <COMENTLINEA>{
-(\n) {yybegin(YYINITIAL); this.tabla.getComentarios().add(comentario);}
+(\n) {yybegin(YYINITIAL); this.tabla.getComentarios().add(comentario); comentario = "";}
 [^] {comentario+=yytext();}
 }
 
-[^] {System.out.println("error lexico "+ yytext());}
+[^] {errores.add(new Errors(yytext(),yyline + 1,yycolumn + 1,"No existe en el lenguaje","Lexico","---",isProyecto1));}
 

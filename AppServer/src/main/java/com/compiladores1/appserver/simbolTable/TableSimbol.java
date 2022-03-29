@@ -44,7 +44,7 @@ public class TableSimbol {
                 parametros.add(variable);
             }
             this.metodos.add(new Metodo(nombre, tipo, parametros.size(), parametros));
-            capturaVariable(variables, "Funcion " +nombre);
+            capturaVariable(variables, "Metodo " +nombre);
             if (!this.clases.isEmpty()) {
                 this.clases.get(this.clases.size() - 1).getFunciones().add(nombre);
             }
@@ -104,7 +104,7 @@ public class TableSimbol {
         } else if (!esGlobal && !this.variables.isEmpty() && !this.metodos.isEmpty()) {
             int index = this.variables.size() - numAactulizar;
             while (this.variables.size() > index) {
-                this.variables.get(index).setFuncionPadre("Funcion "+this.metodos.get(this.metodos.size() - 1).getNombre());
+                this.variables.get(index).setFuncionPadre("Metodo "+this.metodos.get(this.metodos.size() - 1).getNombre());
                 index++;
             }
         }
@@ -128,7 +128,7 @@ public class TableSimbol {
             int index = this.variables.size() - numAactulizar;
             while (this.variables.size() > index) {
                 this.variables.get(index).setTipo(tipo);
-                this.variables.get(index).setFuncionPadre("Funcion "+this.metodos.get(this.metodos.size() - 1).getNombre());
+                this.variables.get(index).setFuncionPadre("Metodo "+this.metodos.get(this.metodos.size() - 1).getNombre());
                 index++;
             }
         }
@@ -147,6 +147,11 @@ public class TableSimbol {
         metodos.forEach(metodo -> {
             System.out.println(metodo.toString());
         });
+        System.out.println("Comentario registrados");
+        comentarios.forEach(comentario -> {
+            System.out.println(comentario);
+        });
+        
     }
 
     public ArrayList<Metodo> getMetodos() {

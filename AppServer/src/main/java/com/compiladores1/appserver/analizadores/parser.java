@@ -8,6 +8,7 @@ package com.compiladores1.appserver.analizadores;
 import java_cup.runtime.*;
 import java.util.ArrayList;
 import com.compiladores1.appserver.simbolTable.*;
+import com.compiladores1.appserver.errores.Errors;
 import java_cup.runtime.XMLElement;
 
 /** CUP v0.11b 20160615 (GIT 4ac7450) generated parser.
@@ -989,6 +990,9 @@ public class parser extends java_cup.runtime.lr_parser {
         private int  contCambio = 0;
         private ArrayList<Variable> variablesAux = new ArrayList<>();
         private TableSimbol tabla = new TableSimbol();
+        private ArrayList<Errors> errores = new ArrayList<>();
+        private boolean isProyecto1 = true;
+        
  /* Connect this parser to a scanner!*/
 	public parser(LexerJava analizadorLexico) {
 		super(analizadorLexico);
@@ -998,8 +1002,9 @@ public class parser extends java_cup.runtime.lr_parser {
         public void syntax_error(Symbol tok) {
 	    try{
 	        Token token = (Token) tok.value;
-	        report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
-	    }catch(Exception e){
+                report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+                errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba","Sintactico",nombreClase,isProyecto1));
+            }catch(Exception e){
                 e.printStackTrace();
 	    }	
 	}
@@ -1007,22 +1012,45 @@ public class parser extends java_cup.runtime.lr_parser {
         public void noEsConstructor(Token token){
               if(!token.getLexeme().equals(nombreClase)){
                       System.out.println("error de constructor");
-                    report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+                     report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+                     errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba","Sintactico",nombreClase,isProyecto1));
               }  
         }
 
     public void unrecovered_syntax_error(Symbol cur_token) {
         if (cur_token.sym == sym.EOF) {
-             System.out.println("SE ESPERABA UNA LLAVE FINAL");  
+             System.out.println("SE ESPERABA UNA LLAVE FINAL"); 
+             errores.add(new Errors("#",0,0,"Se llego al final, se esperaba el terminal ----> }","Sintactico",nombreClase,isProyecto1));
         }else{
              Token token = (Token) cur_token.value;
 	     report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+             errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba","Sintactico",nombreClase,isProyecto1));
         }
     }
 
-    public TableSimbol getTablaSimbolo(){
-            return this.tabla;
+    public void setTabla(TableSimbol tabla){
+        this.tabla = tabla;
     }
+    public TableSimbol getTable(){
+        return this.tabla;
+    }
+
+     public ArrayList<Errors> getErrores() {
+        return errores;
+    }
+
+    public void setErrores(ArrayList<Errors> errores) {
+        this.errores = errores;
+    } 
+
+     public boolean isIsProyecto1() {
+        return isProyecto1;
+    }
+
+    public void setIsProyecto1(boolean isProyecto1) {
+        this.isProyecto1 = isProyecto1;
+    }
+    
 
 
 /** Cup generated class to encapsulate user supplied action code.*/

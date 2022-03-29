@@ -81,9 +81,9 @@ public class GeneradoJson {
             json += "Metodos:[\n\t\t      ";
             for (Metodo metodo : this.proyecto.getMetodos()) {
                 if (ultimPos == iterador) {
-                    json += "{Nombre:\"" + metodo.getNombre() + "\",Tipo:\"" + metodo.getTipo() + "\",Parametros:\"" + metodo.getNumParametros() + "\"}\n\t        ],\n\t";
+                    json += "{Nombre:\"" + metodo.getNombre() + "\",Tipo:\"" + metodo.getTipo() + "\",Parametros:" + metodo.getNumParametros() + "}\n\t        ],\n\t";
                 } else {
-                    json += "{Nombre:\"" + metodo.getNombre() + "\",Tipo:\"" + metodo.getTipo() + "\",Parametros:\"" + metodo.getNumParametros() + "\"},\n\t\t      ";
+                    json += "{Nombre:\"" + metodo.getNombre() + "\",Tipo:\"" + metodo.getTipo() + "\",Parametros:" + metodo.getNumParametros() + "},\n\t\t      ";
                     iterador++;
                 }
             }
@@ -96,12 +96,12 @@ public class GeneradoJson {
     private String jsonComentarios() {
         String json = "";
         if (!this.proyecto.getComentarios().isEmpty()) {
-            int ultimPos = this.proyecto.getMetodos().size() - 1;
+            int ultimPos = this.proyecto.getComentarios().size() - 1;
             int iterador = 0;
-            json += "Metodos:[\n\t\t      ";
+            json += "Comentarios:[\n\t\t      ";
             for (String comentario : this.proyecto.getComentarios()) {
                 if (iterador == ultimPos) {
-                    json += "{Texto:\"" + comentario + "\"}            ]\n}";
+                    json += "{Texto:\"" + comentario + "\"}\n\t            ]\n}";
                 } else {
                     json += "{Texto:\"" + comentario + "\"},\n\t\t      ";
                     iterador++;

@@ -1,0 +1,182 @@
+/*Seccion codigo Imports Package */
+package com.compiladores1.appcliente.analizadores;
+import java_cup.runtime.*;
+import com.compiladores1.appcliente.analizadores.*;
+import com.compiladores1.appcliente.tableSimbol.TableSimbol;
+
+
+ /* Codigo java del parser*/
+parser code {:   
+/*declaracion de variables para capturar Strigns para la tabla de simbolos*/
+
+ /* Connect this parser to a scanner!*/
+        private TableSimbol tabla = new TableSimbol();
+        private String nombreVariable = "";
+        private String tipoVariable = "";
+        private String funcionPadre="";
+        private String nombreMetodo ="";
+        private String tipoMetodo="";
+        private String parametros="";
+        private String segComenario= "";
+
+
+	public parser(LexerJson analizadorLexico) {
+		super(analizadorLexico);
+	}
+
+        @Override
+        public void syntax_error(Symbol tok) {
+	    try{
+	        Token token = (Token) tok.value;
+	        report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+	    }catch(Exception e){
+                e.printStackTrace();
+	    }	
+	}
+
+
+    public void unrecovered_syntax_error(Symbol cur_token) {
+        if (cur_token.sym == sym.EOF) {
+             System.out.println("SE ESPERABA UNA LLAVE FINAL");  
+        }else{
+             Token token = (Token) cur_token.value;
+	     report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+        }
+    }
+
+     
+   
+:};
+
+
+/*seccion de Terminales*/ 
+
+terminal Token DOSPUNTO, COMA, ENTERO, DECIMAL, COMILLAS, CORCHETEA, CORCHETEC, LLAVEA, LLAVEC;
+terminal Token SCORE, CLASES, VARIBALES, METODOS, COMENTARIOS, FUNCION, TIPO, NOMBRE, PARAMTETROS, TEXTO,IDD, ALGO ; 
+
+
+non terminal inicio, def_clase, clases, clase, def_score, def_variable, variable, variables, nom_Var, tipo_Var, funtions, def_coment, comodinComent,metodo;
+non terminal funcion_padre, componentes, fun_oblig, fun_Items, def_metodo, metods, parametros, nom_Metod, tipo_Metod, idd_Coment, text, coments, comodinItem;
+
+start with  inicio;
+
+inicio ::= LLAVEA componentes LLAVEC                            {:tabla.tosting();:}
+                ;
+
+componentes ::= def_score def_clase def_variable def_metodo def_coment
+        ;
+
+def_score ::= SCORE DOSPUNTO COMILLAS ENTERO:score COMILLAS COMA                      {:tabla.capturaScore(score.getLexeme());:}   
+        |    SCORE DOSPUNTO COMILLAS DECIMAL:score COMILLAS COMA                      {:tabla.capturaScore(score.getLexeme());:}
+        | error def_clase
+        ;
+
+def_clase ::= CLASES DOSPUNTO CORCHETEA clases CORCHETEC COMA
+        | CLASES DOSPUNTO CORCHETEA CORCHETEC COMA
+        | error def_variable
+        ;
+
+clases ::= LLAVEA clase LLAVEC COMA             
+        | LLAVEA clase LLAVEC
+        | error LLAVEC
+        ;
+
+clase ::= NOMBRE DOSPUNTO COMILLAS IDD:nomClase COMILLAS                         {:tabla.caputraClase(nomClase.getLexeme());:}
+        | error LLAVEC
+        ;
+
+def_variable ::= VARIBALES DOSPUNTO CORCHETEA variables CORCHETEC COMA
+            | VARIBALES DOSPUNTO CORCHETEA  CORCHETEC COMA
+            | error def_metodo
+            ;
+
+variables ::=  LLAVEA variable LLAVEC COMA variables
+            | LLAVEA variable LLAVEC 
+            | error LLAVEC
+            ;
+
+variable ::= nom_Var COMA tipo_Var COMA funtions                                {:tabla.capturaVar(nombreVariable, tipoVariable,funcionPadre);:}                       
+            | error LLAVEC
+            ;
+
+nom_Var ::= NOMBRE DOSPUNTO COMILLAS IDD:nomVar COMILLAS                        {:nombreVariable = nomVar.getLexeme();:}
+            | error COMA
+            ;
+
+tipo_Var ::= TIPO DOSPUNTO COMILLAS IDD:tipoVAr COMILLAS                        {:tipoVariable = tipoVAr.getLexeme();:}
+            | error COMA
+            ;
+
+funtions ::= FUNCION DOSPUNTO COMILLAS funcion_padre COMILLAS
+             | error LLAVEC
+            ;
+
+funcion_padre ::= fun_oblig fun_Items
+            ;
+
+fun_oblig ::= IDD:tipo1 IDD:funPadre1 COMA IDD:tipo2 IDD:funPadre2       {:funcionPadre =tipo1.getLexeme()+" "+funPadre1.getLexeme()+ ","+ tipo2.getLexeme()+" "+ funPadre2.getLexeme();:}                                             
+            | IDD:fun COMA IDD:funcionP                                  {:funcionPadre =fun.getLexeme() +","+ funcionP.getLexeme();:}
+            | IDD:funPadre1 COMA IDD:tipo2 IDD:funPadre2                 {:funcionPadre = funPadre1.getLexeme()+ ","+tipo2.getLexeme()+" "+ funPadre2.getLexeme();:}                                             
+            | IDD:tipo1 IDD:funcionP COMA IDD:fun                        {:funcionPadre =tipo1.getLexeme()+" "+funcionP.getLexeme()+","+fun.getLexeme();:}
+            | error COMILLAS
+            ;
+
+fun_Items ::=  comodinItem fun_Items        
+            |
+            | error COMILLAS
+            ;
+
+comodinItem ::=  COMA IDD:tipo1 IDD:funcionP                    {:funcionPadre+= ","+tipo1.getLexeme()+" "+funcionP.getLexeme();:}
+                | COMA IDD:funcionP                             {:funcionPadre+= ","+ funcionP.getLexeme();:}
+                ;
+
+def_metodo ::= METODOS DOSPUNTO CORCHETEA  metods  CORCHETEC COMA
+            | METODOS DOSPUNTO CORCHETEA CORCHETEC COMA
+            | error def_coment
+            ;
+
+metods ::= LLAVEA metodo LLAVEC COMA metods
+        | LLAVEA metodo LLAVEC 
+        | error LLAVEC
+        ;
+
+metodo::= nom_Metod COMA tipo_Metod COMA parametros                     {:tabla.capturarMetodo(nombreMetodo, tipoMetodo, parametros);:}
+        | error LLAVEC
+        ;
+
+nom_Metod ::= NOMBRE DOSPUNTO COMILLAS IDD:nomMetodo COMILLAS           {:nombreMetodo=nomMetodo.getLexeme();:}
+            | error COMA
+            ;
+
+tipo_Metod ::= TIPO DOSPUNTO COMILLAS IDD:tipoMetod COMILLAS            {:tipoMetodo = tipoMetod.getLexeme();:}
+            | error COMA
+            ;
+
+parametros ::= PARAMTETROS DOSPUNTO ENTERO:param                        {:parametros=param.getLexeme();:}
+            | error LLAVEC
+            ;
+
+def_coment ::= COMENTARIOS DOSPUNTO CORCHETEA coments CORCHETEC
+            | COMENTARIOS DOSPUNTO CORCHETEA  CORCHETEC
+            | error LLAVEC
+            ;
+
+coments ::= LLAVEA text LLAVEC COMA coments
+        | LLAVEA text LLAVEC
+        ;
+
+text ::= TEXTO DOSPUNTO COMILLAS idd_Coment COMILLAS    {:tabla.capturarComentario(segComenario); segComenario="";:}
+        | error LLAVEC
+        ;
+
+idd_Coment ::= comodinComent idd_Coment                                 
+            | comodinComent                      
+            ;
+
+comodinComent ::= IDD:comentario                           {:segComenario+=" " +comentario.getLexeme()+" ";:}                  
+                | ALGO:comentario                          {:segComenario+=" "+ comentario.getLexeme()+" ";:}
+                | COMA :comentario                         {:segComenario+=" "+ comentario.getLexeme()+" ";:}
+                | error COMILLAS
+                ;
+                
+

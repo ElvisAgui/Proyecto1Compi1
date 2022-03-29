@@ -1,10 +1,8 @@
-package com.compiladores1.appserver.prueba;
 
-import com.compiladores1.appserver.analizadores.LexerJava;
-import com.compiladores1.appserver.analizadores.parser;
-import com.compiladores1.appserver.generadorProyect.GeneradoJson;
-import com.compiladores1.appserver.simbolTable.ManejadorTable;
-import com.compiladores1.appserver.simbolTable.TableSimbol;
+package com.compiladores1.appcliente.UI;
+
+import com.compiladores1.appcliente.analizadores.LexerJson;
+import com.compiladores1.appcliente.analizadores.parser;
 import java.io.Reader;
 import java.io.StringReader;
 
@@ -12,18 +10,11 @@ import java.io.StringReader;
  *
  * @author elvis_agui
  */
-public class Ventana extends javax.swing.JFrame {
+public class VentanPruebas extends javax.swing.JFrame {
 
-    /**
-     * Creates new form Ventana
-     */
     private parser parse;
-    private LexerJava lexer;
-    TableSimbol tabla1 = new TableSimbol();
-    TableSimbol tabla2 = new TableSimbol();
-
-    public Ventana() {
-
+    private LexerJson lexerJson;
+    public VentanPruebas() {
         initComponents();
     }
 
@@ -40,11 +31,12 @@ public class Ventana extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
         jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jTextArea1.setColumns(20);
+        jTextArea1.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        jTextArea1.setForeground(new java.awt.Color(0, 0, 0));
         jTextArea1.setRows(5);
         jScrollPane1.setViewportView(jTextArea1);
 
@@ -55,39 +47,27 @@ public class Ventana extends javax.swing.JFrame {
             }
         });
 
-        jButton2.setText("jButton1");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(20, 20, 20)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 964, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(404, 404, 404)
-                        .addComponent(jButton1)
-                        .addGap(39, 39, 39)
-                        .addComponent(jButton2)))
-                .addContainerGap(16, Short.MAX_VALUE))
+                .addContainerGap()
+                .addComponent(jScrollPane1)
+                .addContainerGap())
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(318, 318, 318)
+                .addComponent(jButton1)
+                .addContainerGap(497, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 418, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
-                .addContainerGap(33, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 432, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jButton1)
+                .addContainerGap(22, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -107,38 +87,18 @@ public class Ventana extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         Reader reader = new StringReader(jTextArea1.getText());
-        this.lexer = new LexerJava(reader);
-        this.parse = new parser(lexer);
-        this.tabla1 = this.parse.getTable();
-        try {
+        this.lexerJson = new LexerJson(reader);
+        this.parse = new parser(lexerJson);
+         try {
             this.parse.parse();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-        Reader reader = new StringReader(jTextArea1.getText());
-
-        LexerJava  lexers = new LexerJava(reader);
-        parser parses = new parser(lexers);
-        this.tabla2 = parses.getTable();
-        try {
-            parses.parse();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        ManejadorTable manejo = new ManejadorTable(tabla1, tabla2);
-        manejo.realizarAcciones();
-        GeneradoJson generic = new GeneradoJson(manejo.getProyecto(), manejo.getScore());
-        System.out.println(generic.generarJson());
-    }//GEN-LAST:event_jButton2ActionPerformed
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextArea1;
