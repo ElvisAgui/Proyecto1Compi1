@@ -37,11 +37,11 @@ public class Errors implements Serializable {
         boolean titulo2 = false;
         for (int i = 0; i < errores.size(); i++) {
             if (errores.get(i).isIsProyecto1() && !titulo1) {
-                textAreaConsole.append("\n------------------------ERRORES DEL PROYECTO 1------------------------");
+                textAreaConsole.append("\n-------------------------------------------------------------------------------ERRORES DEL PROYECTO 1---------------------------------------------------------------------\n");
                 titulo1 = true;
             }
             if (!errores.get(i).isIsProyecto1() && !titulo2) {
-                textAreaConsole.append("\n------------------------ERRORES DEL PROYECTO 2------------------------");
+                textAreaConsole.append("\n-------------------------------------------------------------------------------ERRORES DEL PROYECTO 2----------------------------------------------------------------------\n");
                 titulo2 = true;
             }
             System.out.println("Error : " + errores.get(i).getDescripcion());

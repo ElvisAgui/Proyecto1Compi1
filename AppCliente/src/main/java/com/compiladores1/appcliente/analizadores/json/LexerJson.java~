@@ -4,9 +4,9 @@
 
 /*primer seccion codigo de usuario*/
 //package ;
-package com.compiladores1.appcliente.analizadores;
+package com.compiladores1.appcliente.analizadores.json;
+import com.compiladores1.appcliente.analizadores.Token;
 import java.util.ArrayList;
-import com.compiladores1.appcliente.tableSimbol.*;
 import java_cup.runtime.*;
 import com.compiladores1.appcliente.erros.Errors;
 
@@ -853,7 +853,7 @@ public class LexerJson implements java_cup.runtime.Scanner {
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1:
-            { errores.add(new Errors(yytext(),yyline + 1,yycolumn + 1,"No existe en el lenguaje","Lexico");
+            { errores.add(new Errors(yytext(),yyline + 1,yycolumn + 1,"No existe en el lenguaje","Lexico"));
             }
             // fall through
           case 26: break;

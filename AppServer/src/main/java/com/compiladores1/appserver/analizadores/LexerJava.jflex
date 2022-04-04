@@ -38,8 +38,6 @@ DOPUNTO = ":"
 COMILLAS= "\""
 MENOS = "-"
 MAS = "+"
-ENTERON = ({MENOS}{ENTERO})
-DECIMALN = ({MENOS}{DECIMAL})
 POR = "*"
 DIVISION = "/"
 IGUAL="="
@@ -77,7 +75,7 @@ DEFAULT = "default"
 CASO = "case"
 TRUE = "true"
 FLASE = "false"
-IDD = ((({LETRA}|{DIGONALB})({LETRA}|{ENTERO}|{DIGONALB})*({LETRA}))|{LETRA})
+IDD = ((({LETRA}|{DIGONALB})({LETRA}|{ENTERO}|{DIGONALB})*({LETRA}|{ENTERO}))|{LETRA})
 CARACTER = "'"[^]"'"
 
 
@@ -133,8 +131,6 @@ CARACTER = "'"[^]"'"
 {INICIOMULTILINEA}          {yybegin(COMENTMULTILINEA);} 
 {INICIOLINEA}               {yybegin(COMENTLINEA);}
 {CARACTER}                  { return symbol(sym.CARACTER,yytext()); }
-{ENTERON}                   { return symbol(sym.ENTERON,yytext());}
-{DECIMALN}                  { return symbol(sym.DECIMALN,yytext());}
 {DECIMAL}                   { return symbol(sym.DECIMAL,yytext());}
 {ENTERO}                    { return symbol(sym.ENTERO,yytext());}
 {LLAVEA}                    { return symbol(sym.LLAVEA,yytext());}

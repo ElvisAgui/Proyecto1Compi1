@@ -91,8 +91,8 @@ public class SocketServidor {
         try {
             DataOutputStream ouput = new DataOutputStream(actual.getOutputStream());
             if (!errores.isEmpty()) {
-                textAreaConsole.setText("\n-------------------------------ERRORES ENCONTRADOS EN LOS PROYECTOS----------------------------------------\n");
-                textAreaConsole.append("--------------------------------------------------------------------------------------------------------------------------------------------------------\n");
+                textAreaConsole.setText("\n----------------------------------------------------------------ERRORES ENCONTRADOS EN LOS PROYECTOS-----------------------------------------------------------------------------\n");
+                textAreaConsole.append("--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
                 Errors.imprimirErrores(errores, textAreaConsole);
                 ouput.writeUTF(OptionConexion.ERRORES.toString());
                 ouput.writeUTF("Errores ");

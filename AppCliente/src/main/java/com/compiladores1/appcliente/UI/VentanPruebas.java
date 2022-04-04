@@ -1,8 +1,10 @@
 
 package com.compiladores1.appcliente.UI;
 
-import com.compiladores1.appcliente.analizadores.LexerJson;
-import com.compiladores1.appcliente.analizadores.parser;
+import com.compiladores1.appcliente.analizadores.LexerHtml;
+import com.compiladores1.appcliente.analizadores.Parserhtml;
+import com.compiladores1.appcliente.analizadores.json.LexerJson;
+import com.compiladores1.appcliente.analizadores.json.parser;
 import java.io.Reader;
 import java.io.StringReader;
 
@@ -31,6 +33,7 @@ public class VentanPruebas extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -47,18 +50,27 @@ public class VentanPruebas extends javax.swing.JFrame {
             }
         });
 
+        jButton2.setText("jButton1");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 893, Short.MAX_VALUE)
                 .addContainerGap())
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(318, 318, 318)
+                .addGap(223, 223, 223)
                 .addComponent(jButton1)
-                .addContainerGap(497, Short.MAX_VALUE))
+                .addGap(102, 102, 102)
+                .addComponent(jButton2)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -66,7 +78,9 @@ public class VentanPruebas extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 432, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton1)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(jButton2))
                 .addContainerGap(22, Short.MAX_VALUE))
         );
 
@@ -96,9 +110,23 @@ public class VentanPruebas extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        Reader reader = new StringReader(jTextArea1.getText());
+        LexerHtml lexer = new LexerHtml(reader);
+        Parserhtml parser = new Parserhtml(lexer);
+        parser.setTabla(parse.getTabla());
+        try {
+            parser.parse();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }//GEN-LAST:event_jButton2ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextArea1;

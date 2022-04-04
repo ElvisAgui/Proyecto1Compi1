@@ -2,7 +2,8 @@
 package com.compiladores1.appcliente.analizadores;
 import java_cup.runtime.*;
 import com.compiladores1.appcliente.analizadores.*;
-import com.compiladores1.appcliente.tableSimbol.TableSimbol;
+import com.compiladores1.appcliente.tableSimbol.*;
+
 
 
  /* Codigo java del parser*/
@@ -10,17 +11,12 @@ parser code {:
 /*declaracion de variables para capturar Strigns para la tabla de simbolos*/
 
  /* Connect this parser to a scanner!*/
-        private TableSimbol tabla = new TableSimbol();
-        private String nombreVariable = "";
-        private String tipoVariable = "";
-        private String funcionPadre="";
-        private String nombreMetodo ="";
-        private String tipoMetodo="";
-        private String parametros="";
-        private String segComenario= "";
-
-
-	public parser(LexerHtml analizadorLexico) {
+        private TableSimbol VarGlobal = new TableSimbol();
+        private TableSimbolHtml tabla = new TableSimbolHtml();
+        private boolean isString=false;
+        String operatiosss = "";
+        
+	public Parserhtml(LexerHtml analizadorLexico) {
 		super(analizadorLexico);
 	}
 
@@ -44,125 +40,296 @@ parser code {:
         }
     }
 
-   
+
+   public void setTablaHtml(TableSimbolHtml tabla){
+        this.tabla = tabla;
+    }
+    public TableSimbolHtml getTableHtml(){
+        return this.tabla;
+    }
+
+    public void setTabla(TableSimbol tabla){
+        this.VarGlobal = tabla;
+    }
+    public TableSimbol getTable(){
+        return this.VarGlobal;
+    }
 :};
 
 
 /*seccion de Terminales*/ 
 
 terminal Token HTMABRE,ENTERO,DECIMAL,HTMCIERRE,H1ABRE,H1CIERRE,H2ABRE,H2CIERRE,TABLAABRE,TABLACIERRE,TRABRE,TRCIERRE,THABRE;
-terminal Token THCIERRE.TDABRE,TDCIERRE,SALTO,FORABRE,FORCIERRE,PUNTO,DOSPUNTO,HASTA,MAYOR,MENOR,POSABERTURA,POSCERRADURA,COMA;
-terminal Token PUNTOCOMA, IDD,COMODIN,PARENTESISA,PARENTESISC,IGUAL,MENOS,MAS,POR,DIVISION,COMILLAS,CORCHETEA,CORCHETEC,INTEGER,STRING;
-terminal Token SCORE, RESULT, VARIABLES, CLASES, NOMBRE,TIPO,FUNCION,METODOS,COMENTARIOS,TEXTO,PARAMTETROS;
+terminal Token THCIERRE,TDABRE,TDCIERRE,SALTO,FORABRE,FORCIERRE,PUNTO,DOSPUNTO,HASTA,MAYOR,MENOR,POSABERTURA,POSCERRADURA,COMA;
+terminal Token PUNTOCOMA, IDD,COMODIN,PARENTESISA,PARENTESISC,IGUAL,MENOS,MAS,POR,DIVISION,CORCHETEA,CORCHETEC,INTEGER,STRING;
+terminal Token SCORE, CADENA, RESULT, VARIABLES, CLASES, NOMBRE,TIPO,FUNCION,METODOS,COMENTARIOS,TEXTO,PARAMTETROS, ITERADOR;
 
 /*seccion de No Terminales*/
-non terminal def_variable,variable_integer,variable_String,strin,items_coma,items,asignacion,variable_integer;
-non terminal inte,items_int,items_coma_B,asignacionInt;
-non terminal Double operation;
-non terminal String operationString, concatenacion;
-
+non terminal def_variable,variable_integer,variable_String,strin,items_coma,items,asignacion,iddVarComodin, titleRescursiver;
+non terminal inte,items_int,items_coma_B,asignacionInt,inicio,var_Asign,iddItemsComodin,iddComodinInt,operationaux, senteniasH1H2;
+non terminal String operationString, concatenacion,subTerminalTabla,def_var_Globla, terminalTabla,operationAsig;
+non terminal Integer index, parametros,operation;
+non terminal title1, itemHtml, comodinIddHtml, usoVarGlobal, title2,columTitle,comodinH1H2, columDatos, fila_columna, validosTR, forAnidado, def_table, comodinTable, def_html_General, sentencias, sentencia,def_for, sentenciasFro,sentenciaFor;
 
 /* agregado de precedencias */
 
 precedence left MENOS, MAS;
 precedence left POR, DIVISION;
 
+
+start with  inicio;
+
+inicio ::= def_variable def_html_General 
+        ;
+
 /*declaracion de variables*/
 def_variable ::= variable_integer def_variable
             | variable_String def_variable
+            | var_Asign def_variable
             |
             ;
 
 /*Gramatica para variables, asiganion o definicion int a, b=1,c;*/
 variable_String ::= strin items  
                 ;     
-strin ::= STRING IDD
+strin ::= STRING IDD:identificador                                      {:tabla.capturarVarible("String",identificador.getLexeme());:}                                                        
         ;
 
 /*Gramatica para  items separadas por comas*/
- items_coma ::= IDD:nomVar items                                                        
+ items_coma ::= iddItemsComodin items                                                        
                 | error  PUNTOCOMA                               
+        ;
+iddItemsComodin ::= IDD:nomVar                                          {:tabla.capturarVarible("String",nomVar.getLexeme());:} 
         ;
 
 /*Gramatica para asiganar o tener recursividad*/
  items ::= asignacion PUNTOCOMA
         | asignacion COMA items_coma
         | COMA items_coma
-        | PUNTOCOMA
-        | error  PUNTOCOMA                                              {::} 
+        | PUNTOCOMA                                             {::} 
         ; 
 
 
-asignacion ::=  IGUAL operationString
+asignacion ::=  IGUAL operationString:contenido                {:tabla.capturarContenido(contenido); System.out.println(contenido);:}           
             ;
 
-operationString ::=  CADENA MAS concatenacion
-                | CADENA
-                | subTerminalTabla MAS concatenacion
-                | subTerminalTabla
-                | IDD                           {:/*verificar si es string */:}
-                | IDD MAS concatenacion         {:/*verificar si es string */:}
+operationString ::=  CADENA:cadena MAS concatenacion:contenido             {:RESULT= cadena.getLexeme()+contenido;:}      
+                | CADENA:contenido                                         {:RESULT = contenido.getLexeme();:}
+                | subTerminalTabla:contenido MAS concatenacion:contenido1  {:RESULT = contenido + contenido1;:}     
+                | subTerminalTabla:contenido                               {:RESULT = contenido; :}    
+                | IDD:identificador                                        {:RESULT = tabla.contenidoVariableString(identificador,true);:}
+                | IDD:identificador MAS concatenacion:contenido            {:RESULT = tabla.contenidoVariableString(identificador , true)+contenido;:}
                 ;
             
 
-concatenacion ::= concatenacion:numero1 MAS concatenacion:numero2				
-	        | NUMERO:num													
-	        | DECIMAL:num
-            | terminalTabla
-            | CADENA
-            | IDD                       {:/*verificar si es string */:}
+concatenacion ::= concatenacion:contenido1 MAS concatenacion:contenido2                     {:RESULT = contenido1 +contenido2;:}				
+	        | ENTERO:contenido		        {:RESULT = contenido.getLexeme();:}                                											
+	        | DECIMAL:contenido                     {:RESULT = contenido.getLexeme();:}
+                | terminalTabla:contenido               {:RESULT = contenido;:}
+                | CADENA:contenido                      {:RESULT = contenido.getLexeme();:}
+                | IDD:identificador                     {:RESULT = tabla.contenidoVariableString(identificador,false);:}
 	        ;
 
 /*variables de tipo integer*/
 variable_integer ::= inte items_int  
                 ;     
-inte ::= INTEGER IDD
+inte ::= INTEGER IDD:identificador                            {:tabla.capturarVarible("Integer",identificador.getLexeme());:} 
         ;
 
 items_int ::= asignacionInt PUNTOCOMA
         | asignacionInt COMA items_coma_B
         | COMA items_coma_B
-        | PUNTOCOMA
-        | error  PUNTOCOMA                                              {::} 
+        | PUNTOCOMA                                            {::} 
         ; 
 
- items_coma_B ::= IDD:nomVar items_int                                                        
-                | error  PUNTOCOMA                               
+ items_coma_B ::= iddComodinInt items_int                                                                                     
         ;
 
-asignacionInt ::=  IGUAL operation
+iddComodinInt ::= IDD:identificador                            {:tabla.capturarVarible("Integer",identificador.getLexeme());:}
+                ;        
+
+asignacionInt ::=  IGUAL operation:valOperation                 {:try{tabla.capturarContenido(String.valueOf(valOperation)); System.out.println(String.valueOf(valOperation));}catch(Exception e){e.printStackTrace();}:}
             ;
 
-operation ::= operation:numero1 MAS:operador operation:numero2		
-	| operation:numero1 MENOS:operador operation:numero2			
-	| operation:numero1 POR:operador operation:numero2				
-	| operation:numero1 DIVISION:operador operation:numero2			
-	| NUMERO:num													
-	| DECIMAL:num
-    | parametros
-    | IDD			                                    {:/*verificacion que sea un numero*/:}										
-	| PARENTESISA operation:operacion PARENTESISC					 														{::}
+operation ::= operation:numero1 MAS:operador operation:numero2	        {:try{RESULT = numero2+numero1;}catch(Exception e){e.printStackTrace();}:}	
+	| operation:numero1 MENOS:operador operation:numero2	        {:try{RESULT = numero1-numero2;}catch(Exception e){e.printStackTrace();}:}		
+	| operation:numero1 POR:operador operation:numero2		{:try{RESULT = numero2*numero1;}catch(Exception e){e.printStackTrace();}:}		
+	| operation:numero1 DIVISION:operador operation:numero2		{:try{RESULT = numero1/numero2;}catch(Exception e){e.printStackTrace();}:}	
+	| ENTERO:num							{:try{RESULT = Integer.valueOf( num.getLexeme());}catch(Exception e){e.printStackTrace();}:}						
+	| DECIMAL:num                                                   {:try{RESULT = (int)Double.parseDouble( num.getLexeme());}catch(Exception e){e.printStackTrace();}:}
+        | parametros:numero                                             {:RESULT= numero;:}      
+        | IDD:identificador			                        {:RESULT = tabla.contenidNumeroVariable(identificador);:}										
+	| PARENTESISA operation:operacion PARENTESISC                   {:try{RESULT = operacion;}catch(Exception e){e.printStackTrace();}:}				 														
 	;
 
 /*Llamada a variables globales*/
-subTerminalTabla ::= RESULT PUNTO def_var_Globla
+subTerminalTabla ::= RESULT PUNTO def_var_Globla:contenido                              {:RESULT = contenido;:}
                 ;
-def_var_Globla ::= SCORE
-                | CLASES PUNTO CORCHETEA index CORCHETEC PUNTO NOMBRE
-                | VARIABLES PUNTO CORCHETEA index CORCHETEC PUNTO NOMBRE
-                | VARIABLES PUNTO CORCHETEA index CORCHETEC PUNTO TIPO
-                | VARIABLES PUNTO CORCHETEA index CORCHETEC PUNTO FUNCION
-                | METODOS PUNTO CORCHETEA index CORCHETEC PUNTO NOMBRE
-                | METODOS PUNTO CORCHETEA index CORCHETEC PUNTO TIPO
-                | COMENTARIOS PUNTO CORCHETEA index CORCHETEC punto TEXTO
+def_var_Globla ::= SCORE:score                                                          {:RESULT = ""+VarGlobal.getScore();:}
+                | CLASES  CORCHETEA:pos index:indice CORCHETEC PUNTO NOMBRE        {:RESULT = VarGlobal.recuperarNombreClass(indice, pos);:}
+                | VARIABLES  CORCHETEA:pos index:indice CORCHETEC PUNTO NOMBRE     {:RESULT = VarGlobal.recuperacionNomVar(indice,pos);:}
+                | VARIABLES  CORCHETEA:pos index:indice CORCHETEC PUNTO TIPO       {:RESULT = VarGlobal.recuperacionTipoVar(indice,pos);:}
+                | VARIABLES  CORCHETEA:pos index:indice CORCHETEC PUNTO FUNCION    {:RESULT = VarGlobal.recupearacionFuncionPadreVAr(indice, pos);:}
+                | METODOS  CORCHETEA:pos index:indice CORCHETEC PUNTO NOMBRE       {:RESULT = VarGlobal.recuperacionNombreMetodo(indice, pos);:}
+                | METODOS  CORCHETEA:pos index:indice CORCHETEC PUNTO TIPO         {:RESULT = VarGlobal.recuperacionTipoMetodo(indice,pos);:}
+                | COMENTARIOS  CORCHETEA:pos index:indice CORCHETEC PUNTO TEXTO    {:RESULT = VarGlobal.recuperarTextoComentario(indice, pos);:}
                 ;
 
-terminalTabla ::= subTerminalTabla 
-            | parametros   
+terminalTabla ::= RESULT PUNTO def_var_Globla:contenido                 {:RESULT = contenido;:}
+            | RESULT PUNTO parametros:contenido                         {:RESULT = ""+ contenido;:}   
             ;
-parametros ::= METODOS PUNTO CORCHETEA index CORCHETEC PUNTO PARAMTETROS
+parametros ::=  METODOS  CORCHETEA:pos index:indice CORCHETEC PUNTO PARAMTETROS    {:RESULT = VarGlobal.recuperarParametrosMetodos(indice, pos);:}
             ;
 
-index ::= ENTERO
-        |IDD
+index ::= ENTERO:numero                         {:try{RESULT = Integer.valueOf( numero.getLexeme());}catch(Exception e){RESULT =0;e.printStackTrace();}:}
+        |IDD: numero                            {:RESULT = tabla.contenidNumeroVariable(numero);:}
+        ;
+
+/*asignacion de cualquier variable*/
+
+var_Asign ::= iddVarComodin IGUAL operationAsig:contenido PUNTOCOMA    {:tabla.capturarConteniYadeclarad(contenido, isString); System.out.println(contenido);tabla.setReporError(true);:} 
+        ;
+
+iddVarComodin ::= IDD:identificador                             {:isString=tabla.tipoAsignacion(identificador);:}
+                ;
+
+operationAsig ::= operationAsig:numero1 MAS:operador operationAsig:numero2	{:RESULT = tabla.accionSuma(isString, numero1,numero2,operador);:}	
+	| operationAsig:numero1 MENOS:operador operationAsig:numero2	        {:RESULT = tabla.accionResta(isString, numero1,numero2,operador);:}		
+	| operationAsig:numero1 POR:operador operationAsig:numero2		{:RESULT = tabla.accionMultiplicar(isString, numero1,numero2,operador);:}		
+	| operationAsig:numero1 DIVISION:operador operationAsig:numero2		{:RESULT = tabla.accionDividir(isString, numero1,numero2,operador);:}
+	| ENTERO:contenido                                                      {:RESULT = contenido.getLexeme();:}					
+	| DECIMAL:contenido                                                     {:RESULT = contenido.getLexeme();:}
+        | terminalTabla:contenido                                               {:RESULT = contenido;:}
+        | CADENA:contenido                                                      {:RESULT = contenido.getLexeme();:}
+        | IDD:num			                                        {:RESULT = tabla.contenidoVariableString(num,false);:}										
+	| operationaux                                                          {:try{RESULT = operatiosss;}catch(Exception e){e.printStackTrace();}:}				 														{::}
+	;
+
+operationaux ::= PARENTESISA operation:operacion PARENTESISC                    {:operatiosss= ""+operacion;:}
+;
+
+/*Inicio del apartado de html,titulo,for,br*/
+
+title1 ::= H1ABRE itemHtml  H1CIERRE
+        ;
+
+titleRescursiver ::= title1 titleRescursiver
+                | title2 titleRescursiver
+                | SALTO titleRescursiver
+                | title1
+                | title2
+                | SALTO
+                | comodinIddHtml titleRescursiver
+                | comodinIddHtml
+                | usoVarGlobal titleRescursiver
+                | usoVarGlobal
+                ;
+
+itemHtml ::= comodinIddHtml itemHtml
+        | usoVarGlobal  itemHtml
+        | 
+        ;
+
+comodinIddHtml ::= IDD
+                | CADENA
+                | ENTERO
+                | DECIMAL
+                | COMA
+                | PUNTOCOMA
+                | PARENTESISA
+                | PARENTESISC
+                | IGUAL
+                | MENOS
+                | MAS
+                | POR
+                | DIVISION
+                | CORCHETEA
+                | CORCHETEC
+                | INTEGER
+                | STRING
+                | PUNTO
+                | DOSPUNTO
+                | HASTA
+                | MAYOR
+                | MENOR
+                ;
+
+usoVarGlobal ::= COMODIN  PARENTESISA IDD PARENTESISC COMODIN
+                | COMODIN PARENTESISA terminalTabla PARENTESISC COMODIN
+                ;
+
+title2 ::= H2ABRE itemHtml H2CIERRE
+        ;
+
+columTitle ::= THABRE titleRescursiver THCIERRE
+        | THABRE  THCIERRE
+        ;
+
+comodinH1H2 ::= title1 
+                | title2 
+                | SALTO 
+                | comodinIddHtml 
+                | usoVarGlobal
+        ;
+
+senteniasH1H2 ::= comodinH1H2 senteniasH1H2
+        | comodinH1H2
+        ;
+
+columDatos ::= TDABRE titleRescursiver TDCIERRE
+        | TDABRE  TDCIERRE
+        ;
+
+fila_columna ::= TRABRE validosTR  TRCIERRE
+        | TRABRE   TRCIERRE
+        ;
+
+validosTR ::= columDatos validosTR
+        | columTitle validosTR
+        | columDatos
+        | columTitle  
+        | comodinH1H2 validosTR
+        | comodinH1H2
+        ;
+
+forAnidado ::= FORABRE ITERADOR DOSPUNTO IDD HASTA DOSPUNTO IDD PUNTOCOMA MAYOR fila_columna FORCIERRE
+        | FORABRE ITERADOR DOSPUNTO IDD HASTA DOSPUNTO IDD PUNTOCOMA MAYOR senteniasH1H2 FORCIERRE
+        | FORABRE ITERADOR DOSPUNTO IDD HASTA DOSPUNTO IDD PUNTOCOMA MAYOR  FORCIERRE
+        ;
+
+def_table ::=  TABLAABRE comodinTable TABLACIERRE
+        | TABLAABRE  TABLACIERRE
+        ;
+
+comodinTable ::= fila_columna comodinTable
+        | comodinH1H2 comodinTable
+        | fila_columna
+        | comodinH1H2
+        | forAnidado
+        | forAnidado comodinTable
+        ;
+
+def_html_General ::= HTMABRE sentencias HTMCIERRE
+                | HTMABRE HTMCIERRE
+                ;
+
+sentencias ::= sentencia sentencias
+        | sentencia        
+        ;
+
+sentencia ::= comodinH1H2
+        | def_table
+        | def_for
+        ;
+
+def_for ::= FORABRE ITERADOR DOSPUNTO IDD HASTA DOSPUNTO IDD PUNTOCOMA MAYOR sentenciasFro FORCIERRE
+        | FORABRE ITERADOR DOSPUNTO IDD HASTA DOSPUNTO IDD PUNTOCOMA MAYOR  FORCIERRE
+        ;
+
+sentenciasFro ::= sentenciaFor sentenciasFro
+                | sentenciaFor
+                ;
+
+sentenciaFor ::= comodinH1H2
+        | def_table
         ;

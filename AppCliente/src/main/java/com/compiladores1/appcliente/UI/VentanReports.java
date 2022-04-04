@@ -1,7 +1,8 @@
 package com.compiladores1.appcliente.UI;
 
-import com.compiladores1.appcliente.analizadores.LexerJson;
-import com.compiladores1.appcliente.analizadores.parser;
+import com.compiladores1.appcliente.analizadores.json.LexerJson;
+import com.compiladores1.appcliente.analizadores.json.parser;
+import com.compiladores1.appcliente.erros.Errors;
 import java.io.Reader;
 import java.io.StringReader;
 import javax.swing.JTextArea;
@@ -16,6 +17,7 @@ public class VentanReports extends javax.swing.JFrame {
     private final NumeroLinea numeroLineaDef;
     private parser parse;
     private LexerJson lexerJson;
+    private boolean erroresJson = false;
 
     public VentanReports() {
         initComponents();
@@ -36,7 +38,7 @@ public class VentanReports extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        consolejTextArea = new javax.swing.JTextArea();
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jTabbedPane1 = new javax.swing.JTabbedPane();
@@ -63,12 +65,12 @@ public class VentanReports extends javax.swing.JFrame {
 
         jPanel1.setBackground(new java.awt.Color(0, 255, 255));
 
-        jTextArea1.setBackground(new java.awt.Color(204, 204, 204));
-        jTextArea1.setColumns(20);
-        jTextArea1.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        jTextArea1.setForeground(new java.awt.Color(255, 0, 0));
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
+        consolejTextArea.setBackground(new java.awt.Color(204, 204, 204));
+        consolejTextArea.setColumns(20);
+        consolejTextArea.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        consolejTextArea.setForeground(new java.awt.Color(255, 0, 0));
+        consolejTextArea.setRows(5);
+        jScrollPane1.setViewportView(consolejTextArea);
 
         jPanel2.setBackground(new java.awt.Color(0, 102, 204));
         jPanel2.setForeground(new java.awt.Color(0, 102, 204));
@@ -275,6 +277,20 @@ public class VentanReports extends javax.swing.JFrame {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        if (!this.parse.getErrores().isEmpty()) {
+            this.erroresJson = true;
+            consolejTextArea.setText("--ERRORES ENCONTRADOS--");
+            for (Errors errore : this.parse.getErrores()) {
+                String error = "Error de Sintaxis con el Token: \""+errore.getLexeman()+"\" Este no pertenece a la estructura -linea: "+errore.getFila()+" -Columna: "+errore.getColumna();
+                error+= "Tipo Error: "+ errore.getTipo()+" -Descripcion: "+ errore.getDescripcion()+"\n";
+                consolejTextArea.append(error);
+            }
+        } else {
+            consolejTextArea.setText("--ESTE ARCHIVO NO TIENE ERRORES--");
+            this.erroresJson = false;
+        }
+
+
     }//GEN-LAST:event_anlizarJsonjMenuItemActionPerformed
 
     /*apartado para los getters y setters*/
@@ -296,6 +312,7 @@ public class VentanReports extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem anlizarJsonjMenuItem;
+    private javax.swing.JTextArea consolejTextArea;
     private javax.swing.JScrollPane defjScrollPane;
     private javax.swing.JTextArea defjTextArea;
     private javax.swing.JTextArea editorjTextArea;
@@ -313,7 +330,6 @@ public class VentanReports extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JPanel jsonjPanel;
     private javax.swing.JScrollPane lineasjScrollPane;
     private javax.swing.JMenu menujMenu;

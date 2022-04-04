@@ -1,9 +1,10 @@
 /*primer seccion codigo de usuario*/
 //package ;
-package com.compiladores1.appcliente.analizadores;
+package com.compiladores1.appcliente.analizadores.json;
+import com.compiladores1.appcliente.analizadores.Token;
 import java.util.ArrayList;
-import com.compiladores1.appcliente.tableSimbol.*;
 import java_cup.runtime.*;
+import com.compiladores1.appcliente.erros.Errors;
 
 %%
 /*segunda seccion configuracion*/
@@ -40,7 +41,7 @@ TIPO="tipo"
 NOMBRE="nombre"
 PARAMTETROS="parametros"
 TEXTO="texto"
-IDD = ((({LETRA}|{DIGONALB})({LETRA}|{ENTERO}|{DIGONALB})*({LETRA}))|{LETRA})
+IDD = ((({LETRA}|{DIGONALB})({LETRA}|{ENTERO}|{DIGONALB})*({LETRA}|{ENTERO}))|{LETRA})
 
 /*comodin %{ para agregar codigo java*/
 %{
@@ -48,6 +49,9 @@ IDD = ((({LETRA}|{DIGONALB})({LETRA}|{ENTERO}|{DIGONALB})*({LETRA}))|{LETRA})
     private Symbol symbol(int type, String lexema) {
         return new Symbol(type, new Token(lexema, yyline + 1, yycolumn + 1));
     }
+
+    private ArrayList<Errors> errores = new ArrayList<>();
+
     private Symbol symbolReservado(String lexema) {
         String aux = lexema.toLowerCase();
         int type;
@@ -88,6 +92,14 @@ IDD = ((({LETRA}|{DIGONALB})({LETRA}|{ENTERO}|{DIGONALB})*({LETRA}))|{LETRA})
         }
         return new Symbol(type, new Token(lexema, yyline + 1, yycolumn + 1));
     }
+
+    public ArrayList<Errors> getErrores() {
+        return errores;
+    }
+
+    public void setErrores(ArrayList<Errors> errores) {
+        this.errores = errores;
+    } 
     
 %}
 
@@ -142,4 +154,4 @@ IDD = ((({LETRA}|{DIGONALB})({LETRA}|{ENTERO}|{DIGONALB})*({LETRA}))|{LETRA})
 }
 
 /* error fallback */
-[^]                             {System.out.println("Error simbolo: "+yytext());}
+[^]                             {errores.add(new Errors(yytext(),yyline + 1,yycolumn + 1,"No existe en el lenguaje","Lexico"));}

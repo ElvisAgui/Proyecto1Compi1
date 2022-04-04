@@ -1,9 +1,12 @@
 /*Seccion codigo Imports Package */
-package com.compiladores1.appcliente.analizadores;
+package com.compiladores1.appcliente.analizadores.json;
+import com.compiladores1.appcliente.analizadores.json.sym;
+import com.compiladores1.appcliente.analizadores.json.LexerJson;
 import java_cup.runtime.*;
-import com.compiladores1.appcliente.analizadores.*;
+import com.compiladores1.appcliente.analizadores.Token;
 import com.compiladores1.appcliente.tableSimbol.TableSimbol;
-
+import com.compiladores1.appcliente.erros.Errors;
+import java.util.ArrayList;
 
  /* Codigo java del parser*/
 parser code {:   
@@ -18,7 +21,7 @@ parser code {:
         private String tipoMetodo="";
         private String parametros="";
         private String segComenario= "";
-
+        private ArrayList<Errors> errores = new ArrayList<>();
 
 	public parser(LexerJson analizadorLexico) {
 		super(analizadorLexico);
@@ -29,7 +32,8 @@ parser code {:
 	    try{
 	        Token token = (Token) tok.value;
 	        report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
-	    }catch(Exception e){
+                errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba","Sintactico"));
+            }catch(Exception e){
                 e.printStackTrace();
 	    }	
 	}
@@ -38,13 +42,30 @@ parser code {:
     public void unrecovered_syntax_error(Symbol cur_token) {
         if (cur_token.sym == sym.EOF) {
              System.out.println("SE ESPERABA UNA LLAVE FINAL");  
+             errores.add(new Errors("#",0,0,"Se llego al final, se esperaba el terminal de Cierre","Sintactico"));
+
         }else{
              Token token = (Token) cur_token.value;
 	     report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+             errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba","Sintactico"));
         }
     }
 
+      public ArrayList<Errors> getErrores() {
+        return errores;
+    }
+
+    public void setErrores(ArrayList<Errors> errores) {
+        this.errores = errores;
+    } 
      
+     public TableSimbol getTabla() {
+        return tabla;
+    }
+
+    public void setTabla(TableSimbol tabla) {
+        this.tabla = tabla;
+    }
    
 :};
 
@@ -76,7 +97,7 @@ def_clase ::= CLASES DOSPUNTO CORCHETEA clases CORCHETEC COMA
         | error def_variable
         ;
 
-clases ::= LLAVEA clase LLAVEC COMA             
+clases ::= LLAVEA clase LLAVEC COMA  clases           
         | LLAVEA clase LLAVEC
         | error LLAVEC
         ;

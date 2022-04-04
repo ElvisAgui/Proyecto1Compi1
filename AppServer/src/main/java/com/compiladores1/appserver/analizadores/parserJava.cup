@@ -79,8 +79,8 @@ parser code {:
 /*seccion de Terminales*/ 
 
 terminal Token ENTERO, DECIMAL, LLAVEA, LLAVEC, PARENTESISA, PARENTESISC, PUNTO,COMA,PUNTOCOMA, DEFAULT;
-terminal Token DOPUNTO, MENOS, MAS, POR, DIVISION, IGUAL,EQUALS,OR,AND,MENORQ,MAYORQ,MAYOROI,MENOROI, CASO, DECIMALN;
-terminal Token NOTEQUALS, IMPORT, IDD, PRIVATE, PUBLIC, PROTECTED, FINAL, CLASS, INT, BOOLEAN, TRUE, CADENA, ENTERON;
+terminal Token DOPUNTO, MENOS, MAS, POR, DIVISION, IGUAL,EQUALS,OR,AND,MENORQ,MAYORQ,MAYOROI,MENOROI, CASO;
+terminal Token NOTEQUALS, IMPORT, IDD, PRIVATE, PUBLIC, PROTECTED, FINAL, CLASS, INT, BOOLEAN, TRUE, CADENA;
 terminal Token STRING, NEGATION, CHAR, CARACTER, DOUBLE, IF, ELSE, FOR, WHILE, DO, SWITCH, BREAK, RETURN, NUEVO, FALSE;
 
 
@@ -319,8 +319,6 @@ factor_casos ::=  def_if
                 | DECIMAL
                 | CARACTER
                 | CADENA 
-                | ENTERON
-                | DECIMALN
                 ;
 
 acceso_termin_var_metod ::=  PUNTO IDD PARENTESISA  PARENTESISC acceso_termin_var_metod
@@ -422,7 +420,8 @@ operation_for ::= IDD MAS MAS
 
 /*gramatica para el constructor*/
 constructor ::= visibilidad comodin_Consturc LLAVEA sentencias LLAVEC
-            ;
+                | comodin_Consturc LLAVEA sentencias LLAVEC
+                ;
 
 comodin_Consturc ::= IDD:nomMet PARENTESISA parametros PARENTESISC              {: noEsConstructor(nomMet); tabla.capturarMetodo(variablesAux,nomMet.getLexeme(),"Constructor"); variablesAux.clear(); :}
                 | IDD:nomMet PARENTESISA  PARENTESISC                           {: noEsConstructor(nomMet); tabla.capturarMetodo(nomMet.getLexeme(),"Constructor");:}                       

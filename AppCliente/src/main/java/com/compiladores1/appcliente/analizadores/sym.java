@@ -8,53 +8,119 @@ package com.compiladores1.appcliente.analizadores;
 /** CUP generated class containing symbol constants. */
 public class sym {
   /* terminals */
-  public static final int IDD = 21;
-  public static final int CORCHETEC = 8;
-  public static final int METODOS = 14;
-  public static final int CORCHETEA = 7;
-  public static final int DECIMAL = 5;
-  public static final int ALGO = 22;
-  public static final int SCORE = 11;
-  public static final int LLAVEC = 10;
-  public static final int LLAVEA = 9;
-  public static final int COMILLAS = 6;
-  public static final int PARAMTETROS = 19;
-  public static final int TIPO = 17;
-  public static final int COMA = 3;
-  public static final int COMENTARIOS = 15;
-  public static final int DOSPUNTO = 2;
-  public static final int NOMBRE = 18;
+  public static final int H2ABRE = 8;
+  public static final int TABLAABRE = 10;
+  public static final int DOSPUNTO = 22;
+  public static final int FORABRE = 19;
+  public static final int TIPO = 49;
+  public static final int POR = 37;
+  public static final int NOMBRE = 48;
+  public static final int POSCERRADURA = 27;
+  public static final int ENTERO = 3;
+  public static final int FUNCION = 50;
+  public static final int SCORE = 43;
+  public static final int FORCIERRE = 20;
+  public static final int INTEGER = 41;
+  public static final int CORCHETEC = 40;
+  public static final int COMENTARIOS = 52;
+  public static final int CORCHETEA = 39;
+  public static final int THABRE = 14;
+  public static final int PUNTOCOMA = 29;
+  public static final int ITERADOR = 55;
+  public static final int PARENTESISC = 33;
+  public static final int HASTA = 23;
+  public static final int PARENTESISA = 32;
+  public static final int H1ABRE = 6;
+  public static final int TDABRE = 16;
+  public static final int POSABERTURA = 26;
+  public static final int IGUAL = 34;
+  public static final int TABLACIERRE = 11;
+  public static final int HTMCIERRE = 5;
+  public static final int PARAMTETROS = 54;
+  public static final int CLASES = 47;
+  public static final int TRABRE = 12;
   public static final int EOF = 0;
-  public static final int TEXTO = 20;
+  public static final int DECIMAL = 4;
   public static final int error = 1;
-  public static final int CLASES = 12;
-  public static final int ENTERO = 4;
-  public static final int VARIBALES = 13;
-  public static final int FUNCION = 16;
+  public static final int COMA = 28;
+  public static final int CADENA = 44;
+  public static final int MENOS = 35;
+  public static final int MENOR = 25;
+  public static final int IDD = 30;
+  public static final int MAYOR = 24;
+  public static final int THCIERRE = 15;
+  public static final int H1CIERRE = 7;
+  public static final int TDCIERRE = 17;
+  public static final int METODOS = 51;
+  public static final int TRCIERRE = 13;
+  public static final int H2CIERRE = 9;
+  public static final int VARIABLES = 46;
+  public static final int PUNTO = 21;
+  public static final int COMODIN = 31;
+  public static final int STRING = 42;
+  public static final int TEXTO = 53;
+  public static final int DIVISION = 38;
+  public static final int SALTO = 18;
+  public static final int RESULT = 45;
+  public static final int MAS = 36;
+  public static final int HTMABRE = 2;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
-  "DOSPUNTO",
-  "COMA",
+  "HTMABRE",
   "ENTERO",
   "DECIMAL",
-  "COMILLAS",
+  "HTMCIERRE",
+  "H1ABRE",
+  "H1CIERRE",
+  "H2ABRE",
+  "H2CIERRE",
+  "TABLAABRE",
+  "TABLACIERRE",
+  "TRABRE",
+  "TRCIERRE",
+  "THABRE",
+  "THCIERRE",
+  "TDABRE",
+  "TDCIERRE",
+  "SALTO",
+  "FORABRE",
+  "FORCIERRE",
+  "PUNTO",
+  "DOSPUNTO",
+  "HASTA",
+  "MAYOR",
+  "MENOR",
+  "POSABERTURA",
+  "POSCERRADURA",
+  "COMA",
+  "PUNTOCOMA",
+  "IDD",
+  "COMODIN",
+  "PARENTESISA",
+  "PARENTESISC",
+  "IGUAL",
+  "MENOS",
+  "MAS",
+  "POR",
+  "DIVISION",
   "CORCHETEA",
   "CORCHETEC",
-  "LLAVEA",
-  "LLAVEC",
+  "INTEGER",
+  "STRING",
   "SCORE",
+  "CADENA",
+  "RESULT",
+  "VARIABLES",
   "CLASES",
-  "VARIBALES",
+  "NOMBRE",
+  "TIPO",
+  "FUNCION",
   "METODOS",
   "COMENTARIOS",
-  "FUNCION",
-  "TIPO",
-  "NOMBRE",
-  "PARAMTETROS",
   "TEXTO",
-  "IDD",
-  "ALGO"
+  "PARAMTETROS",
+  "ITERADOR"
   };
 }
 

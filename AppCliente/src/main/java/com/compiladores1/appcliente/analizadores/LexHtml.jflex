@@ -2,6 +2,8 @@ package com.compiladores1.appcliente.analizadores;
 import java.util.ArrayList;
 import com.compiladores1.appcliente.tableSimbol.*;
 import java_cup.runtime.*;
+import com.compiladores1.appcliente.tableSimbol.TableSimbol;
+
 
 
 
@@ -13,11 +15,11 @@ import java_cup.runtime.*;
 %column
 %unicode
 %cup
+%state CADE
 %state COMENTARIO
 
 /*delcaracion para los tokens*/
 WhiteSpace = [\r|\n|\r\n|\s\t] | [\t\f]
-ENTERO = [0-9]+
 DECIMAL = ([0-9]+[.]([0-9]+))
 LETRA = [a-zA-Z|ñ]
 HTMABRE="<html>"
@@ -40,6 +42,7 @@ FORCIERRE="</for>"
 PUNTO = "."
 DOSPUNTO = ":" 
 HASTA="hasta"
+ITERADOR = "iterador";
 MAYOR=">"
 MENOR="<"
 POSABERTURA = (({MENOR})({LETRA})+({MAYOR})?)
@@ -47,7 +50,8 @@ POSCERRADURA = (({MENOR})({DIVISION})({LETRA})+({MAYOR}))
 COMA = ","
 PUNTOCOMA = ";"
 ENTERO = [0-9]+
-IDD = ((({LETRA}|{DIGONALB})({LETRA}|{ENTERO}|{DIGONALB})*({LETRA}))|{LETRA})
+DIGONALB = "_"
+IDD = ((({LETRA}|{DIGONALB})({LETRA}|{ENTERO}|{DIGONALB})*({LETRA}|{ENTERO}))|{LETRA})
 COMODIN="$$"
 PARENTESISA ="\("
 PARENTESISC ="\)"
@@ -66,7 +70,10 @@ STRING="string"
 
 /*comodin %{ para agregar codigo java*/
 %{
-  
+    private String cadena ="";
+    private String auxAnteriror = "";
+    private boolean tomarEncuenta = true;
+
     private Symbol symbol(int type, String lexema) {
         return new Symbol(type, new Token(lexema, yyline + 1, yycolumn + 1));
     }
@@ -125,17 +132,17 @@ STRING="string"
             case "</for>":
                 type = sym.FORCIERRE;
                 break;
-            case "<br>":
-                type = sym.SALTO;
-                break;
-            case "<for":
-                type = sym.FORABRE;
-                break;
             case "integer":
                 type = sym.INTEGER;
                 break;
             case "string":
                 type = sym.STRING;
+                break;
+            case "hasta":
+                type = sym.HASTA;
+                break;
+            case "iterador":
+                type = sym.ITERADOR;
                 break;
             case "result":
                 type = sym.RESULT;
@@ -144,35 +151,74 @@ STRING="string"
                 type = sym.SCORE;
                 break;   
             case "variables":
-                type = sym.VARIABLES;
+                if(auxAnteriror.equals("result")){
+                    type = sym.VARIABLES;
+                }else{
+                    type = sym.IDD;
+                }
                 break;
             case "clases":
-                type = sym.CLASES;
+                if(auxAnteriror.equals("result")){
+                    type = sym.CLASES;
+                }else{
+                    type = sym.IDD;
+                }
                 break;
             case "nombre":
-                type = sym.NOMBRE;
+                if(auxAnteriror.equals("variables") || auxAnteriror.equals("metodos") || auxAnteriror.equals("clases")){
+                    type = sym.NOMBRE;
+                }else{
+                    type = sym.IDD;
+                }
                 break;
             case "tipo":
-                type = sym.TIPO;
+                if(auxAnteriror.equals("variables") || auxAnteriror.equals("metodos")){
+                    type = sym.TIPO;
+                }else{
+                    type = sym.IDD;
+                }
                 break;
             case "funcion":
-                type = sym.FUNCION;
+                if(auxAnteriror.equals("variables")){
+                    type = sym.FUNCION;
+                }else{
+                    type = sym.IDD;
+                }
                 break;
             case "metodos":
-                type = sym.METODOS;
+                if(auxAnteriror.equals("result")){
+                    type = sym.METODOS;
+                }else{
+                    type = sym.IDD;
+                }
                 break;
             case "comentarios":
-                type = sym.COMENTARIOS;
+                if(auxAnteriror.equals("result")){
+                    type = sym.COMENTARIOS;
+                }else{
+                    type = sym.IDD;
+                }
                 break;
             case "texto":
-                type = sym.TEXTO;
+                if(auxAnteriror.equals("comentarios")){
+                    type = sym.TEXTO;
+                }else{
+                    type = sym.IDD;
+                }
                 break;
             case "parametros":
-                type = sym.PARAMTETROS;
+                if(auxAnteriror.equals("metodos")){
+                    type = sym.PARAMTETROS;
+                }else{
+                    type = sym.IDD;
+                }
                 break;
             default:
                 type = sym.IDD;
                 break;
+        }
+        if(tomarEncuenta){
+            auxAnteriror = aux;
         }
         return new Symbol(type, new Token(lexema, yyline + 1, yycolumn + 1));
     }
@@ -217,7 +263,6 @@ STRING="string"
 {POSCERRADURA}                          {return symbolReservado(yytext());}
 {COMA}                                  {return symbol(sym.COMA,yytext());}
 {PUNTOCOMA}                             {return symbol(sym.PUNTOCOMA,yytext());}
-{IDD}                                   {return symbolReservado(yytext());}
 {COMODIN}                               {return symbol(sym.COMODIN,yytext());}
 {PARENTESISA}                           {return symbol(sym.PARENTESISA,yytext());}
 {PARENTESISC}                           {return symbol(sym.PARENTESISC,yytext());}
@@ -226,14 +271,18 @@ STRING="string"
 {MAS}                                   {return symbol(sym.MAS,yytext());}
 {POR}                                   {return symbol(sym.POR,yytext());}
 {DIVISION}                              {return symbol(sym.DIVISION,yytext());}
-{COMILLAS}                              {return symbol(sym.COMILLAS,yytext());}
-{CORCHETEA}                             {return symbol(sym.CORCHETEA,yytext());}
-{CORCHETEC}                             {return symbol(sym.CORCHETEC,yytext());}
+{CORCHETEA}                             { tomarEncuenta = false; return symbol(sym.CORCHETEA,yytext());}
+{CORCHETEC}                             { tomarEncuenta = true;  return symbol(sym.CORCHETEC,yytext());}
 {INTEGER}                               {return symbol(sym.INTEGER,yytext());}
 {STRING}                                {return symbol(sym.STRING,yytext());}
+{IDD}                                   {return symbolReservado(yytext());}
+{COMILLAS}                              {cadena =""; yybegin(CADE);}
 }
 
-
+<CADE>{
+{COMILLAS} { yybegin(YYINITIAL); return symbol(sym.CADENA, cadena);}
+[^] {cadena+=yytext();}
+}
 
 <COMENTARIO>{
 {FIN_COMENTARIO_MULTILINEA} {yybegin(YYINITIAL);}
