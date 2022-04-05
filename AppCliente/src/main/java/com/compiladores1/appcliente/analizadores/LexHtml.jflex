@@ -5,8 +5,6 @@ import java_cup.runtime.*;
 import com.compiladores1.appcliente.tableSimbol.TableSimbol;
 
 
-
-
 %%
 /*segunda seccion configuracion*/
 %class LexerHtml

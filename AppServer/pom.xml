@@ -24,15 +24,5 @@
             <artifactId>cup_runtime</artifactId>
             <version>11b-20160615</version>
         </dependency>
-        <dependency>
-            <groupId>unknown.binary</groupId>
-            <artifactId>AbsoluteLayout</artifactId>
-            <version>SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>unknown.binary</groupId>
-            <artifactId>jflex-full-1.8.2</artifactId>
-            <version>SNAPSHOT</version>
-        </dependency>
     </dependencies>
 </project>

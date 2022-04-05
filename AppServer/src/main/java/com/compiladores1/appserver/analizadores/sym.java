@@ -9,59 +9,57 @@ package com.compiladores1.appserver.analizadores;
 public class sym {
   /* terminals */
   public static final int CASO = 25;
-  public static final int CHAR = 42;
+  public static final int CHAR = 40;
   public static final int POR = 15;
   public static final int EQUALS = 18;
   public static final int MENORQ = 21;
   public static final int ENTERO = 2;
-  public static final int DOUBLE = 44;
-  public static final int PRIVATE = 30;
-  public static final int INT = 35;
+  public static final int DOUBLE = 42;
+  public static final int PRIVATE = 29;
+  public static final int INT = 34;
   public static final int PUNTOCOMA = 10;
-  public static final int FOR = 47;
+  public static final int FOR = 45;
   public static final int PARENTESISC = 7;
   public static final int PARENTESISA = 6;
   public static final int AND = 20;
   public static final int IGUAL = 17;
-  public static final int CARACTER = 43;
+  public static final int CARACTER = 41;
   public static final int OR = 19;
-  public static final int CLASS = 34;
-  public static final int IF = 45;
-  public static final int BOOLEAN = 36;
+  public static final int CLASS = 33;
+  public static final int IF = 43;
+  public static final int BOOLEAN = 35;
   public static final int EOF = 0;
   public static final int DECIMAL = 3;
-  public static final int RETURN = 52;
-  public static final int TRUE = 37;
+  public static final int RETURN = 50;
+  public static final int TRUE = 36;
   public static final int error = 1;
-  public static final int NEGATION = 41;
-  public static final int DECIMALN = 26;
+  public static final int NEGATION = 39;
   public static final int COMA = 9;
-  public static final int CADENA = 38;
+  public static final int CADENA = 37;
   public static final int MENOS = 13;
-  public static final int BREAK = 51;
-  public static final int IDD = 29;
-  public static final int SWITCH = 50;
-  public static final int NUEVO = 53;
-  public static final int ENTERON = 39;
-  public static final int IMPORT = 28;
+  public static final int BREAK = 49;
+  public static final int IDD = 28;
+  public static final int SWITCH = 48;
+  public static final int NUEVO = 51;
+  public static final int IMPORT = 27;
   public static final int DOPUNTO = 12;
-  public static final int ELSE = 46;
-  public static final int PROTECTED = 32;
+  public static final int ELSE = 44;
+  public static final int PROTECTED = 31;
   public static final int PUNTO = 8;
   public static final int MAYORQ = 22;
   public static final int MAYOROI = 23;
-  public static final int WHILE = 48;
-  public static final int FINAL = 33;
-  public static final int NOTEQUALS = 27;
+  public static final int WHILE = 46;
+  public static final int FINAL = 32;
+  public static final int NOTEQUALS = 26;
   public static final int DEFAULT = 11;
-  public static final int PUBLIC = 31;
+  public static final int PUBLIC = 30;
   public static final int MENOROI = 24;
-  public static final int STRING = 40;
-  public static final int FALSE = 54;
+  public static final int STRING = 38;
+  public static final int FALSE = 52;
   public static final int DIVISION = 16;
   public static final int LLAVEC = 5;
   public static final int LLAVEA = 4;
-  public static final int DO = 49;
+  public static final int DO = 47;
   public static final int MAS = 14;
   public static final String[] terminalNames = new String[] {
   "EOF",
@@ -90,7 +88,6 @@ public class sym {
   "MAYOROI",
   "MENOROI",
   "CASO",
-  "DECIMALN",
   "NOTEQUALS",
   "IMPORT",
   "IDD",
@@ -103,7 +100,6 @@ public class sym {
   "BOOLEAN",
   "TRUE",
   "CADENA",
-  "ENTERON",
   "STRING",
   "NEGATION",
   "CHAR",

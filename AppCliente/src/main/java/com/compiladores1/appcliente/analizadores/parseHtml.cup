@@ -3,7 +3,7 @@ package com.compiladores1.appcliente.analizadores;
 import java_cup.runtime.*;
 import com.compiladores1.appcliente.analizadores.*;
 import com.compiladores1.appcliente.tableSimbol.*;
-
+import com.compiladores1.appcliente.salidHtml.*;
 
 
  /* Codigo java del parser*/
@@ -15,6 +15,7 @@ parser code {:
         private TableSimbolHtml tabla = new TableSimbolHtml();
         private boolean isString=false;
         String operatiosss = "";
+        private AccionesSalida actionSalid= new AccionesSalida();
         
 	public Parserhtml(LexerHtml analizadorLexico) {
 		super(analizadorLexico);
@@ -69,7 +70,8 @@ non terminal def_variable,variable_integer,variable_String,strin,items_coma,item
 non terminal inte,items_int,items_coma_B,asignacionInt,inicio,var_Asign,iddItemsComodin,iddComodinInt,operationaux, senteniasH1H2;
 non terminal String operationString, concatenacion,subTerminalTabla,def_var_Globla, terminalTabla,operationAsig;
 non terminal Integer index, parametros,operation;
-non terminal title1, itemHtml, comodinIddHtml, usoVarGlobal, title2,columTitle,comodinH1H2, columDatos, fila_columna, validosTR, forAnidado, def_table, comodinTable, def_html_General, sentencias, sentencia,def_for, sentenciasFro,sentenciaFor;
+non terminal title1, itemHtml, comodinIddHtml, usoVarGlobal, title2,columTitle,comodinH1H2, columDatos, fila_columna, validosTR, forAnidado;
+non terminal comodintitle, def_table, comodinTable, def_html_General, sentencias, sentencia,def_for, sentenciasFro,sentenciaFor;
 
 /* agregado de precedencias */
 
@@ -210,19 +212,11 @@ operationaux ::= PARENTESISA operation:operacion PARENTESISC                    
 
 /*Inicio del apartado de html,titulo,for,br*/
 
-title1 ::= H1ABRE itemHtml  H1CIERRE
+title1 ::= H1ABRE itemHtml  H1CIERRE            
         ;
 
-titleRescursiver ::= title1 titleRescursiver
-                | title2 titleRescursiver
-                | SALTO titleRescursiver
-                | title1
-                | title2
-                | SALTO
-                | comodinIddHtml titleRescursiver
-                | comodinIddHtml
-                | usoVarGlobal titleRescursiver
-                | usoVarGlobal
+titleRescursiver ::= comodintitle titleRescursiver
+                | comodintitle
                 ;
 
 itemHtml ::= comodinIddHtml itemHtml
@@ -230,57 +224,61 @@ itemHtml ::= comodinIddHtml itemHtml
         | 
         ;
 
-comodinIddHtml ::= IDD
-                | CADENA
-                | ENTERO
-                | DECIMAL
-                | COMA
-                | PUNTOCOMA
-                | PARENTESISA
-                | PARENTESISC
-                | IGUAL
-                | MENOS
-                | MAS
-                | POR
-                | DIVISION
-                | CORCHETEA
-                | CORCHETEC
-                | INTEGER
-                | STRING
-                | PUNTO
-                | DOSPUNTO
-                | HASTA
-                | MAYOR
-                | MENOR
+comodinIddHtml ::= IDD:contenido                {:actionSalid.setContenidoTem(contenido.getLexeme());:}
+                | CADENA:contenido              {:actionSalid.setContenidoTem(contenido.getLexeme());:}
+                | ENTERO:contenido              {:actionSalid.setContenidoTem(contenido.getLexeme());:}
+                | DECIMAL:contenido             {:actionSalid.setContenidoTem(contenido.getLexeme());:}
+                | COMA:contenido                {:actionSalid.setContenidoTem(contenido.getLexeme());:}
+                | PUNTOCOMA:contenido           {:actionSalid.setContenidoTem(contenido.getLexeme());:}
+                | PARENTESISA:contenido         {:actionSalid.setContenidoTem(contenido.getLexeme());:}
+                | PARENTESISC:contenido         {:actionSalid.setContenidoTem(contenido.getLexeme());:}
+                | IGUAL: contenido              {:actionSalid.setContenidoTem(contenido.getLexeme());:}
+                | MENOS: contenido              {:actionSalid.setContenidoTem(contenido.getLexeme());:}
+                | MAS: contenido                {:actionSalid.setContenidoTem(contenido.getLexeme());:}
+                | POR: contenido                {:actionSalid.setContenidoTem(contenido.getLexeme());:}
+                | DIVISION:contenido            {:actionSalid.setContenidoTem(contenido.getLexeme());:}
+                | CORCHETEA: contenido          {:actionSalid.setContenidoTem(contenido.getLexeme());:}
+                | CORCHETEC: contenido          {:actionSalid.setContenidoTem(contenido.getLexeme());:}
+                | INTEGER: contenido            {:actionSalid.setContenidoTem(contenido.getLexeme());:}
+                | STRING:contenido              {:actionSalid.setContenidoTem(contenido.getLexeme());:}
+                | PUNTO:contenido               {:actionSalid.setContenidoTem(contenido.getLexeme());:}
+                | DOSPUNTO:contenido            {:actionSalid.setContenidoTem(contenido.getLexeme());:}
+                | HASTA:contenido               {:actionSalid.setContenidoTem(contenido.getLexeme());:}
+                | MAYOR:contenido               {:actionSalid.setContenidoTem(contenido.getLexeme());:}
+                | MENOR:contenido               {:actionSalid.setContenidoTem(contenido.getLexeme());:}
+                ;                       
+
+usoVarGlobal ::= COMODIN  PARENTESISA IDD:identificador PARENTESISC COMODIN         {:actionSalid.setContenidoTem(tabla.contenidoVariableString(identificador,false));:}
+                | COMODIN PARENTESISA terminalTabla:contenido PARENTESISC COMODIN   {:actionSalid.setContenidoTem(contenido);:}      
                 ;
 
-usoVarGlobal ::= COMODIN  PARENTESISA IDD PARENTESISC COMODIN
-                | COMODIN PARENTESISA terminalTabla PARENTESISC COMODIN
-                ;
-
-title2 ::= H2ABRE itemHtml H2CIERRE
+title2 ::= H2ABRE itemHtml H2CIERRE             
         ;
 
-columTitle ::= THABRE titleRescursiver THCIERRE
-        | THABRE  THCIERRE
+columTitle ::= THABRE titleRescursiver THCIERRE         {:actionSalid.capturarTH();:}
+        | THABRE  THCIERRE                              {:actionSalid.capturarTH();:}
         ;
 
-comodinH1H2 ::= title1 
-                | title2 
-                | SALTO 
-                | comodinIddHtml 
-                | usoVarGlobal
+comodinH1H2 ::= title1          {:actionSalid.capturaH1();:}
+        | title2                {:actionSalid.capturaH2();:}
+        | SALTO                 {:actionSalid.capturaBr();:}
+        | comodinIddHtml        
+        | usoVarGlobal
         ;
 
-senteniasH1H2 ::= comodinH1H2 senteniasH1H2
-        | comodinH1H2
+comodintitle ::= title1         
+        | title2                
+        | SALTO                 
+        | comodinIddHtml        
+        | usoVarGlobal
         ;
 
-columDatos ::= TDABRE titleRescursiver TDCIERRE
-        | TDABRE  TDCIERRE
+
+columDatos ::= TDABRE titleRescursiver TDCIERRE {:actionSalid.capturarTD();:}
+        | TDABRE  TDCIERRE                      {:actionSalid.capturarTD();:}
         ;
 
-fila_columna ::= TRABRE validosTR  TRCIERRE
+fila_columna ::= TRABRE validosTR  TRCIERRE     {:actionSalid.capturarTR();:}
         | TRABRE   TRCIERRE
         ;
 
@@ -288,28 +286,27 @@ validosTR ::= columDatos validosTR
         | columTitle validosTR
         | columDatos
         | columTitle  
-        | comodinH1H2 validosTR
-        | comodinH1H2
+        | comodintitle validosTR
+        | comodintitle
         ;
 
 forAnidado ::= FORABRE ITERADOR DOSPUNTO IDD HASTA DOSPUNTO IDD PUNTOCOMA MAYOR fila_columna FORCIERRE
-        | FORABRE ITERADOR DOSPUNTO IDD HASTA DOSPUNTO IDD PUNTOCOMA MAYOR senteniasH1H2 FORCIERRE
         | FORABRE ITERADOR DOSPUNTO IDD HASTA DOSPUNTO IDD PUNTOCOMA MAYOR  FORCIERRE
         ;
 
-def_table ::=  TABLAABRE comodinTable TABLACIERRE
-        | TABLAABRE  TABLACIERRE
+def_table ::=  TABLAABRE comodinTable TABLACIERRE  {:actionSalid.caputararTable();:}
+        | TABLAABRE  TABLACIERRE                 {:actionSalid.caputararTable();:}
         ;
 
 comodinTable ::= fila_columna comodinTable
-        | comodinH1H2 comodinTable
+        | comodintitle comodinTable
         | fila_columna
-        | comodinH1H2
+        | comodintitle
         | forAnidado
         | forAnidado comodinTable
         ;
 
-def_html_General ::= HTMABRE sentencias HTMCIERRE
+def_html_General ::= HTMABRE sentencias HTMCIERRE               {:actionSalid.tostring();:}
                 | HTMABRE HTMCIERRE
                 ;
 

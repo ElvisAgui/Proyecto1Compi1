@@ -102,21 +102,21 @@ start with  inicio;
  /*Gramatica inicio*/
  inicio ::= importacion def_clase
         |
-        | error 
+        | error LLAVEC
         ;
 
 /*Gramatica importaciones*/
  importacion ::= IMPORT IDD PUNTO item_punto 
         | IMPORT IDD PUNTOCOMA importacion      {::}
         |
-        | error importacion                     {::}
+        | error PUNTOCOMA                     {::}
         ;
 
 /*Gramatica itemes con punto seguidos, esto para la gramatica de importaciones*/
  item_punto ::= IDD PUNTO item_punto
         | IDD PUNTOCOMA importacion             {::}                
         | POR PUNTOCOMA importacion             {::}
-        | error importacion                     {::}
+        | error PUNTOCOMA                     {::}
         ;
 
 /*Gramatica para definir una clase*/
@@ -163,7 +163,7 @@ comodin_Metod ::= tipo IDD:nomMet PARENTESISA parametros PARENTESISC            
         | IGUAL asignacion COMA items_coma
         | COMA items_coma
         | PUNTOCOMA
-        | error  PUNTOCOMA                                              {::} 
+        | error  IDD                                              {::} 
         ; 
 
 /*Gramatica para anteponer final en asignar */
@@ -283,7 +283,7 @@ increment ::= MAS MAS PUNTOCOMA
  cases ::= caso_sw salid cases
         | caso_sw cases
         |
-        | error  cases                              {::} 
+        | error  CASO                              {::} 
         ;
   
 /*Gramatica para casos */
