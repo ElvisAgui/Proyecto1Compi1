@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import com.compiladores1.appcliente.tableSimbol.*;
 import java_cup.runtime.*;
 import com.compiladores1.appcliente.tableSimbol.TableSimbol;
+import com.compiladores1.appcliente.erros.Errors;
 
 
 %%
@@ -71,6 +72,7 @@ STRING="string"
     private String cadena ="";
     private String auxAnteriror = "";
     private boolean tomarEncuenta = true;
+        private ArrayList<Errors> errores = new ArrayList<>();
 
     private Symbol symbol(int type, String lexema) {
         return new Symbol(type, new Token(lexema, yyline + 1, yycolumn + 1));
@@ -220,6 +222,15 @@ STRING="string"
         }
         return new Symbol(type, new Token(lexema, yyline + 1, yycolumn + 1));
     }
+
+
+    public ArrayList<Errors> getErrores() {
+        return errores;
+    }
+
+    public void setErrores(ArrayList<Errors> errores) {
+        this.errores = errores;
+    } 
     
 %}
 
@@ -289,4 +300,4 @@ STRING="string"
 
 
 /* error fallback */
-[^]                                     {System.out.println("Error simbolo: "+yytext());}
+[^]                                     {errores.add(new Errors(yytext(),yyline + 1,yycolumn + 1,"No existe en el lenguaje","Lexico"));}

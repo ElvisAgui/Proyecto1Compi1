@@ -14,6 +14,7 @@ public class Errors implements Serializable{
     private int columna;
     private String descripcion;
     private String tipo;
+    private boolean isSemantico = false;
 
     public Errors(){
         
@@ -25,6 +26,14 @@ public class Errors implements Serializable{
         this.columna = columna;
         this.descripcion = descripcion;
         this.tipo = tipo;
+    }
+
+    public Errors(int fila, int columna, String descripcion, String tipo, boolean isSemantico) {
+        this.fila = fila;
+        this.columna = columna;
+        this.descripcion = descripcion;
+        this.tipo = tipo;
+        this.isSemantico = isSemantico;
     }
     
     
@@ -68,5 +77,15 @@ public class Errors implements Serializable{
     public void setTipo(String tipo) {
         this.tipo = tipo;
     }
+
+    public boolean isIsSemantico() {
+        return isSemantico;
+    }
+
+    public void setIsSemantico(boolean isSemantico) {
+        this.isSemantico = isSemantico;
+    }
+    
+    
 
 }

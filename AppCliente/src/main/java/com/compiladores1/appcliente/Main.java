@@ -11,10 +11,9 @@ import com.compiladores1.appcliente.UI.VentanaInicial;
 public class Main {
     
     public static void main(String[] args) {
-        VentanPruebas vtn = new VentanPruebas();
-        vtn.setVisible(true);
-
-//        VentanaInicial vtn = new VentanaInicial();
+//        VentanPruebas vtn = new VentanPruebas();
 //        vtn.setVisible(true);
+        VentanaInicial vtn = new VentanaInicial();
+        vtn.setVisible(true);
     }
 }

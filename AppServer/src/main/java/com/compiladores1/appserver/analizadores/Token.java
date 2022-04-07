@@ -3,20 +3,17 @@ package com.compiladores1.appserver.analizadores;
 
 
 public class Token {
-    //Atributos
     private final String lexeme;
     private final int line;
     private final int column;
 
 
-    //Constructor
     public Token(String lexema, int linea, int columna) {
         this.lexeme = lexema;
         this.line = linea;
         this.column = columna;
 
     }
-    //Metodos
     public Token(int fila, int columna) {
         this(null, fila, columna);
     }

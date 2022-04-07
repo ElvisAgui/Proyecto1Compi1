@@ -369,6 +369,7 @@ public class LexerHtml implements java_cup.runtime.Scanner {
   /* user code: */
     private String cadena ="";
     private String auxAnteriror = "";
+    private boolean tomarEncuenta = true;
 
     private Symbol symbol(int type, String lexema) {
         return new Symbol(type, new Token(lexema, yyline + 1, yycolumn + 1));
@@ -513,7 +514,9 @@ public class LexerHtml implements java_cup.runtime.Scanner {
                 type = sym.IDD;
                 break;
         }
-        auxAnteriror = aux;
+        if(tomarEncuenta){
+            auxAnteriror = aux;
+        }
         return new Symbol(type, new Token(lexema, yyline + 1, yycolumn + 1));
     }
     
@@ -1016,12 +1019,12 @@ public class LexerHtml implements java_cup.runtime.Scanner {
             // fall through
           case 65: break;
           case 19:
-            { return symbol(sym.CORCHETEA,yytext());
+            { tomarEncuenta = false; return symbol(sym.CORCHETEA,yytext());
             }
             // fall through
           case 66: break;
           case 20:
-            { auxAnteriror = yytext(); return symbol(sym.CORCHETEC,yytext());
+            { tomarEncuenta = true;  return symbol(sym.CORCHETEC,yytext());
             }
             // fall through
           case 67: break;

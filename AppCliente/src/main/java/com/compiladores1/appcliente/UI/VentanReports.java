@@ -1,10 +1,19 @@
 package com.compiladores1.appcliente.UI;
 
+import com.compiladores1.appcliente.analizadores.LexerHtml;
+import com.compiladores1.appcliente.analizadores.Parserhtml;
 import com.compiladores1.appcliente.analizadores.json.LexerJson;
 import com.compiladores1.appcliente.analizadores.json.parser;
+import com.compiladores1.appcliente.archivos.EscritorArchivo;
+import com.compiladores1.appcliente.archivos.LectorArchivos;
 import com.compiladores1.appcliente.erros.Errors;
+import com.compiladores1.appcliente.salidHtml.AccionesSalida;
+import com.compiladores1.appcliente.salidHtml.GeneradorReporte;
+import com.compiladores1.appcliente.tableSimbol.TableSimbol;
+import java.io.File;
 import java.io.Reader;
 import java.io.StringReader;
+import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
 /**
@@ -15,9 +24,18 @@ public class VentanReports extends javax.swing.JFrame {
 
     private final NumeroLinea numeroLineaJson;
     private final NumeroLinea numeroLineaDef;
+    private LectorArchivos lector;
     private parser parse;
+    private File directorio;
     private LexerJson lexerJson;
-    private boolean erroresJson = false;
+    private EscritorArchivo escritor;
+    private VentanaInicial ventanaPrincipal;
+    private boolean erroresJson = true;
+    private TableSimbol VarGlobal = new TableSimbol();
+    private LexerHtml lexerHtml;
+    private Parserhtml parseHtml;
+    private AccionesSalida actionSalida;
+    private GeneradorReporte salidaReporte;
 
     public VentanReports() {
         initComponents();
@@ -48,16 +66,17 @@ public class VentanReports extends javax.swing.JFrame {
         jPanel6 = new javax.swing.JPanel();
         defjScrollPane = new javax.swing.JScrollPane();
         defjTextArea = new javax.swing.JTextArea();
+        jPanel3 = new javax.swing.JPanel();
         jMenuBar1 = new javax.swing.JMenuBar();
-        menujMenu = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
-        jMenuItem2 = new javax.swing.JMenuItem();
+        Filemenu = new javax.swing.JMenu();
+        abririProyect = new javax.swing.JMenuItem();
+        guardar = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         anlizarJsonjMenuItem = new javax.swing.JMenuItem();
-        jMenuItem4 = new javax.swing.JMenuItem();
+        analizarDEf = new javax.swing.JMenuItem();
         jMenuItem5 = new javax.swing.JMenuItem();
         jMenu1 = new javax.swing.JMenu();
-        jMenuItem6 = new javax.swing.JMenuItem();
+        regresar = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("REPORTES");
@@ -68,7 +87,7 @@ public class VentanReports extends javax.swing.JFrame {
         consolejTextArea.setBackground(new java.awt.Color(204, 204, 204));
         consolejTextArea.setColumns(20);
         consolejTextArea.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        consolejTextArea.setForeground(new java.awt.Color(255, 0, 0));
+        consolejTextArea.setForeground(new java.awt.Color(0, 102, 204));
         consolejTextArea.setRows(5);
         jScrollPane1.setViewportView(consolejTextArea);
 
@@ -158,6 +177,11 @@ public class VentanReports extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Def", jPanel6);
 
+        jPanel3.setBackground(new java.awt.Color(51, 153, 255));
+        jPanel3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel3.setLayout(new javax.swing.BoxLayout(jPanel3, javax.swing.BoxLayout.Y_AXIS));
+        jTabbedPane1.addTab("Ver Reporte", jPanel3);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -188,21 +212,26 @@ public class VentanReports extends javax.swing.JFrame {
         jMenuBar1.setForeground(new java.awt.Color(0, 0, 0));
         jMenuBar1.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
 
-        menujMenu.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        menujMenu.setText("FILE");
+        Filemenu.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        Filemenu.setText("FILE");
 
-        jMenuItem1.setText("Abrir Proyecto");
-        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+        abririProyect.setText("Abrir Proyecto");
+        abririProyect.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem1ActionPerformed(evt);
+                abririProyectActionPerformed(evt);
             }
         });
-        menujMenu.add(jMenuItem1);
+        Filemenu.add(abririProyect);
 
-        jMenuItem2.setText("Guardar");
-        menujMenu.add(jMenuItem2);
+        guardar.setText("Guardar");
+        guardar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                guardarActionPerformed(evt);
+            }
+        });
+        Filemenu.add(guardar);
 
-        jMenuBar1.add(menujMenu);
+        jMenuBar1.add(Filemenu);
 
         jMenu2.setText("ANALIZAR");
 
@@ -214,8 +243,13 @@ public class VentanReports extends javax.swing.JFrame {
         });
         jMenu2.add(anlizarJsonjMenuItem);
 
-        jMenuItem4.setText(".def");
-        jMenu2.add(jMenuItem4);
+        analizarDEf.setText(".def");
+        analizarDEf.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                analizarDEfActionPerformed(evt);
+            }
+        });
+        jMenu2.add(analizarDEf);
 
         jMenuItem5.setText("Ver Reporte");
         jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
@@ -229,13 +263,13 @@ public class VentanReports extends javax.swing.JFrame {
 
         jMenu1.setText("Otros");
 
-        jMenuItem6.setText("Analizar Archivos Java");
-        jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
+        regresar.setText("Analizar Archivos Java");
+        regresar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem6ActionPerformed(evt);
+                regresarActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem6);
+        jMenu1.add(regresar);
 
         jMenuBar1.add(jMenu1);
 
@@ -255,43 +289,116 @@ public class VentanReports extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+    private void abririProyectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_abririProyectActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jMenuItem1ActionPerformed
+        this.lector = new LectorArchivos();
+        lector.recuperacionCopy();
+        if (lector.isCorrecto()) {
+            VentanReports actulizar = new VentanReports();
+            actulizar.setVisible(true);
+            actulizar.getDefjTextArea().setText(lector.getDef());
+            actulizar.getEditorjTextArea().setText(lector.getJson());
+            actulizar.setDirectorio(lector.getDirectorio());
+            this.dispose();
+        }
+
+    }//GEN-LAST:event_abririProyectActionPerformed
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
-    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
+    private void regresarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_regresarActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jMenuItem6ActionPerformed
+
+        this.ventanaPrincipal = new VentanaInicial();
+        this.ventanaPrincipal.setVisible(true);
+        this.dispose();
+
+    }//GEN-LAST:event_regresarActionPerformed
 
     private void anlizarJsonjMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_anlizarJsonjMenuItemActionPerformed
         // TODO add your handling code here:
-        Reader reader = new StringReader(editorjTextArea.getText());
-        this.lexerJson = new LexerJson(reader);
-        this.parse = new parser(lexerJson);
-        try {
-            this.parse.parse();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        if (!this.parse.getErrores().isEmpty()) {
-            this.erroresJson = true;
-            consolejTextArea.setText("--ERRORES ENCONTRADOS--");
-            for (Errors errore : this.parse.getErrores()) {
-                String error = "Error de Sintaxis con el Token: \""+errore.getLexeman()+"\" Este no pertenece a la estructura -linea: "+errore.getFila()+" -Columna: "+errore.getColumna();
-                error+= "Tipo Error: "+ errore.getTipo()+" -Descripcion: "+ errore.getDescripcion()+"\n";
-                consolejTextArea.append(error);
+        if (!"".equals(this.editorjTextArea.getText())) {
+            consolejTextArea.setText("");
+            Reader reader = new StringReader(editorjTextArea.getText());
+            this.lexerJson = new LexerJson(reader);
+            this.parse = new parser(lexerJson);
+            this.parse.setTabla(VarGlobal);
+            try {
+                this.parse.parse();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            if (!this.parse.getErrores().isEmpty()) {
+                this.erroresJson = true;
+                consolejTextArea.setText("--ERRORES ENCONTRADOS--\n");
+                for (Errors errore : this.parse.getErrores()) {
+                    String error = "Error de Sintaxis con el Token: \"" + errore.getLexeman() + "\" Este no pertenece a la estructura -linea: " + errore.getFila() + " -Columna: " + errore.getColumna();
+                    error += " Tipo Error: " + errore.getTipo() + " -Descripcion: " + errore.getDescripcion() + "\n";
+                    consolejTextArea.append(error);
+                }
+            } else {
+                consolejTextArea.setText("--ESTE ARCHIVO NO TIENE ERRORES--");
+                JOptionPane.showMessageDialog(this, "Bien echo! ahora pudes usar las varibles Globales en tu sintaxis DEF :)");
+                this.erroresJson = false;
             }
         } else {
-            consolejTextArea.setText("--ESTE ARCHIVO NO TIENE ERRORES--");
-            this.erroresJson = false;
+            JOptionPane.showMessageDialog(this, "Sin contenido para anilizar");
         }
 
 
     }//GEN-LAST:event_anlizarJsonjMenuItemActionPerformed
+
+    private void guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardarActionPerformed
+        // TODO add your handling code here:
+        this.escritor = new EscritorArchivo();
+        File nuevo = new File(directorio.getAbsolutePath().substring(0, directorio.getAbsolutePath().length() - 5));
+        this.escritor.guardarModificaciones(nuevo, editorjTextArea.getText(), defjTextArea.getText());
+
+    }//GEN-LAST:event_guardarActionPerformed
+
+    private void analizarDEfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analizarDEfActionPerformed
+        // TODO add your handling code here:
+        if (!defjTextArea.getText().equals("")) {
+            if (this.erroresJson) {
+                JOptionPane.showMessageDialog(this, "NOTA: Recuerda que el archivo Json aun no se ha analizado correctamente");
+            }
+            consolejTextArea.setText("");
+            Reader reader = new StringReader(defjTextArea.getText());
+            this.lexerHtml = new LexerHtml(reader);
+            this.parseHtml = new Parserhtml(lexerHtml);
+            parseHtml.setTabla(VarGlobal);
+            try {
+                parseHtml.parse();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            if (!parseHtml.getErrores().isEmpty()) {
+                consolejTextArea.setText("--ERRORES ENCONTRADOS--\n");
+                for (Errors errore : this.parseHtml.getErrores()) {
+                    if (errore.isIsSemantico()) {
+                        String error = "Error de Sintaxis: ubicado en la fila: " + errore.getFila() + " -Columna: " + errore.getColumna();
+                        error += " Tipo Error: " + errore.getTipo() + " -Descripcion: " + errore.getDescripcion() + "\n";
+                        consolejTextArea.append(error);
+                    } else {
+                        String error = "Error de Sintaxis con el Token: \"" + errore.getLexeman() + "\" Este no pertenece a la estructura -linea: " + errore.getFila() + " -Columna: " + errore.getColumna();
+                        error += " Tipo Error: " + errore.getTipo() + " -Descripcion: " + errore.getDescripcion() + "\n";
+                        consolejTextArea.append(error);
+                    }
+                }
+            } else {
+                jPanel3.removeAll();
+                consolejTextArea.setText("--ESTE ARCHIVO NO TIENE ERRORES--");
+                this.actionSalida = this.parseHtml.getActionSalid();
+                this.salidaReporte = new GeneradorReporte(jPanel3);
+                salidaReporte.ouputElementos(actionSalida.getEtiquetas());
+                JOptionPane.showMessageDialog(this, "Bien echo sabes Programar XD revis tu Reporte Grafico");
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Sin contenido para Analizar");
+        }
+    }//GEN-LAST:event_analizarDEfActionPerformed
 
     /*apartado para los getters y setters*/
     public JTextArea getDefjTextArea() {
@@ -310,28 +417,33 @@ public class VentanReports extends javax.swing.JFrame {
         this.editorjTextArea = editorjTextArea;
     }
 
+    public void setDirectorio(File directorio) {
+        this.directorio = directorio;
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenu Filemenu;
+    private javax.swing.JMenuItem abririProyect;
+    private javax.swing.JMenuItem analizarDEf;
     private javax.swing.JMenuItem anlizarJsonjMenuItem;
     private javax.swing.JTextArea consolejTextArea;
     private javax.swing.JScrollPane defjScrollPane;
     private javax.swing.JTextArea defjTextArea;
     private javax.swing.JTextArea editorjTextArea;
+    private javax.swing.JMenuItem guardar;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem2;
-    private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
-    private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JPanel jsonjPanel;
     private javax.swing.JScrollPane lineasjScrollPane;
-    private javax.swing.JMenu menujMenu;
+    private javax.swing.JMenuItem regresar;
     // End of variables declaration//GEN-END:variables
 }

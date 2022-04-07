@@ -1,8 +1,8 @@
 package com.compiladores1.appcliente.conexion;
 
 import com.compiladores1.appcliente.UI.VentanReports;
+import com.compiladores1.appcliente.archivos.EscritorArchivo;
 import com.compiladores1.files.FileProyects;
-import com.compiladores1.appcliente.erros.Errors;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.ObjectInputStream;
@@ -109,15 +109,12 @@ public class SocketCliente {
             error = false;
             DataInputStream input = new DataInputStream(actual.getInputStream());
             String mensaje = input.readUTF();
-            System.out.println(mensaje);
-            JOptionPane.showMessageDialog(null, "Genial Todo se a Procesado con Exito, Erres un Campeon");
+            EscritorArchivo escritor = new EscritorArchivo();
+            escritor.guardarPrimerJson(mensaje, "");
             VentanReports ventanaRepor = new VentanReports();
+            ventanaRepor.setDirectorio(escritor.getFileDirectory());
             ventanaRepor.getEditorjTextArea().setText(mensaje);
             ventanaRepor.setVisible(true);
-
-//            ventanaResultados ventanaResultados1 = new ventanaResultados();
-//            ventanaResultados1.getAreaJson().setText(mensaje);
-//            ventanaResultados1.setVisible(true);
         } catch (Exception ex) {
             Logger.getLogger(SocketCliente.class.getName()).log(Level.SEVERE, null, ex);
             ex.printStackTrace();

@@ -1,6 +1,7 @@
 
 package com.compiladores1.appcliente.UI;
 
+import com.compiladores1.appcliente.archivos.LectorArchivos;
 import com.compiladores1.appcliente.conexion.SocketCliente;
 import java.io.File;
 import java.util.ArrayList;
@@ -12,8 +13,8 @@ import javax.swing.JFileChooser;
  */
 public class VentanaInicial extends javax.swing.JFrame {
 
-    ArrayList<File> archivoP1;
-    ArrayList<File> archivoP2;
+    ArrayList<File> proyecto1;
+    ArrayList<File> proyecto2;
     SocketCliente cliente;
     public VentanaInicial() {
         initComponents();
@@ -51,6 +52,7 @@ public class VentanaInicial extends javax.swing.JFrame {
         jPanel9 = new javax.swing.JPanel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
+        abrir = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setExtendedState(6);
@@ -378,6 +380,15 @@ public class VentanaInicial extends javax.swing.JFrame {
         );
 
         jMenu1.setText("File");
+
+        abrir.setText("Abrir proyecto");
+        abrir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                abrirActionPerformed(evt);
+            }
+        });
+        jMenu1.add(abrir);
+
         jMenuBar1.add(jMenu1);
 
         setJMenuBar(jMenuBar1);
@@ -415,7 +426,7 @@ public class VentanaInicial extends javax.swing.JFrame {
                 archivosP2.add(nuevo);
 
             }
-            this.archivoP2=archivosP2;
+            this.proyecto2=archivosP2;
 
         }
         
@@ -437,7 +448,7 @@ public class VentanaInicial extends javax.swing.JFrame {
                 File nuevo = new File(carpetaSelec, lista[i]);
                 archivosP1.add(nuevo);
             }
-            this.archivoP1 = archivosP1;
+            this.proyecto1 = archivosP1;
 
         }
         
@@ -445,14 +456,29 @@ public class VentanaInicial extends javax.swing.JFrame {
 
     private void analizarjButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analizarjButtonActionPerformed
         // TODO add your handling code here:
-        cliente.enviarPeticion(archivoP1,archivoP2);
+        cliente.enviarPeticion(proyecto1,proyecto2);
         if (cliente.getError()==false) {
             this.dispose();
         }
     }//GEN-LAST:event_analizarjButtonActionPerformed
 
+    private void abrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_abrirActionPerformed
+        // TODO add your handling code here:
+        LectorArchivos lector = new LectorArchivos();
+        lector.recuperacionCopy();
+        if (lector.isCorrecto()) {
+            VentanReports ventana = new VentanReports();
+            ventana.setVisible(true);
+            ventana.getEditorjTextArea().setText(lector.getJson());
+            ventana.getDefjTextArea().setText(lector.getDef());
+            ventana.setDirectorio(lector.getDirectorio());
+            this.dispose();
+        }
+    }//GEN-LAST:event_abrirActionPerformed
+
    
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem abrir;
     private javax.swing.JButton analizarjButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

@@ -2,6 +2,7 @@ package com.compiladores1.appserver.prueba;
 
 import com.compiladores1.appserver.analizadores.LexerJava;
 import com.compiladores1.appserver.analizadores.parser;
+import com.compiladores1.appserver.analizadores.sym;
 import com.compiladores1.appserver.generadorProyect.GeneradoJson;
 import com.compiladores1.appserver.simbolTable.ManejadorTable;
 import com.compiladores1.appserver.simbolTable.TableSimbol;

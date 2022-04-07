@@ -5,6 +5,7 @@ import com.compiladores1.appcliente.analizadores.LexerHtml;
 import com.compiladores1.appcliente.analizadores.Parserhtml;
 import com.compiladores1.appcliente.analizadores.json.LexerJson;
 import com.compiladores1.appcliente.analizadores.json.parser;
+import com.compiladores1.appcliente.tableSimbol.TableSimbol;
 import java.io.Reader;
 import java.io.StringReader;
 
@@ -13,7 +14,7 @@ import java.io.StringReader;
  * @author elvis_agui
  */
 public class VentanPruebas extends javax.swing.JFrame {
-
+    private TableSimbol VarGlobal = new TableSimbol();
     private parser parse;
     private LexerJson lexerJson;
     public VentanPruebas() {
@@ -103,6 +104,7 @@ public class VentanPruebas extends javax.swing.JFrame {
         Reader reader = new StringReader(jTextArea1.getText());
         this.lexerJson = new LexerJson(reader);
         this.parse = new parser(lexerJson);
+        this.parse.setTabla(VarGlobal);
          try {
             this.parse.parse();
         } catch (Exception ex) {
@@ -115,7 +117,7 @@ public class VentanPruebas extends javax.swing.JFrame {
         Reader reader = new StringReader(jTextArea1.getText());
         LexerHtml lexer = new LexerHtml(reader);
         Parserhtml parser = new Parserhtml(lexer);
-        parser.setTabla(parse.getTabla());
+        parser.setTabla(VarGlobal);
         try {
             parser.parse();
         } catch (Exception ex) {

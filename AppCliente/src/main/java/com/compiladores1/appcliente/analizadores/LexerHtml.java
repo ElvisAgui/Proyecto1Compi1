@@ -7,8 +7,7 @@ import java.util.ArrayList;
 import com.compiladores1.appcliente.tableSimbol.*;
 import java_cup.runtime.*;
 import com.compiladores1.appcliente.tableSimbol.TableSimbol;
-
-
+import com.compiladores1.appcliente.erros.Errors;
 
 
 
@@ -370,6 +369,7 @@ public class LexerHtml implements java_cup.runtime.Scanner {
     private String cadena ="";
     private String auxAnteriror = "";
     private boolean tomarEncuenta = true;
+        private ArrayList<Errors> errores = new ArrayList<>();
 
     private Symbol symbol(int type, String lexema) {
         return new Symbol(type, new Token(lexema, yyline + 1, yycolumn + 1));
@@ -519,6 +519,15 @@ public class LexerHtml implements java_cup.runtime.Scanner {
         }
         return new Symbol(type, new Token(lexema, yyline + 1, yycolumn + 1));
     }
+
+
+    public ArrayList<Errors> getErrores() {
+        return errores;
+    }
+
+    public void setErrores(ArrayList<Errors> errores) {
+        this.errores = errores;
+    } 
     
 
 
@@ -929,7 +938,7 @@ public class LexerHtml implements java_cup.runtime.Scanner {
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1:
-            { System.out.println("Error simbolo: "+yytext());
+            { errores.add(new Errors(yytext(),yyline + 1,yycolumn + 1,"No existe en el lenguaje","Lexico"));
             }
             // fall through
           case 48: break;

@@ -32,6 +32,11 @@ public class Errors implements Serializable {
         this.isProyecto1 = isProyecto1;
     }
 
+    /**
+     * imprime los errores en la consola
+     * @param errores
+     * @param textAreaConsole 
+     */
     public static void imprimirErrores(ArrayList<Errors> errores, JTextArea textAreaConsole) {
         boolean titulo1 = false;
         boolean titulo2 = false;
@@ -51,7 +56,7 @@ public class Errors implements Serializable {
 
     public String descripcionError() {
         String description = "Error en la clase: " + this.nomClase + " con el  Token: ";
-        description += "\""+this.lexeman+ "\"" + "  |---|  LINEA---> " + this.fila + "  |---|  COLUMNA---> " + this.columna + "  |---|  TIPO---> " + this.tipo + "  |---|  DESCRIPCION---> " + this.descripcion;
+        description += "\""+this.lexeman+ "\"" + " -LINEA: " + this.fila + " -COLUMNA: " + this.columna + " -TIPO: " + this.tipo + " -DESCRIPCION: " + this.descripcion;
         return description;
     }
 

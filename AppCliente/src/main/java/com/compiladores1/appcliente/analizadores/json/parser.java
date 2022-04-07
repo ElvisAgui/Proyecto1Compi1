@@ -12,6 +12,7 @@ import com.compiladores1.appcliente.analizadores.Token;
 import com.compiladores1.appcliente.tableSimbol.TableSimbol;
 import com.compiladores1.appcliente.erros.Errors;
 import java.util.ArrayList;
+import java.util.List;
 import java_cup.runtime.XMLElement;
 
 /** CUP v0.11b 20160615 (GIT 4ac7450) generated parser.
@@ -292,12 +293,21 @@ public class parser extends java_cup.runtime.lr_parser {
 
         @Override
         public void syntax_error(Symbol tok) {
+                String esperado = "un terminal xd";
 	    try{
+                List<Integer> lista=expected_token_ids();
+                if(!lista.isEmpty()){
+                       if(lista.get(0)<=50){
+                               esperado = sym.terminalNames[lista.get(0)];
+                       } 
+                }
 	        Token token = (Token) tok.value;
 	        report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
-                errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba","Sintactico"));
+                errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba :"+esperado,"Sintactico"));
             }catch(Exception e){
-                e.printStackTrace();
+                Token token = (Token) tok.value;
+	        report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+                errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba :"+esperado,"Sintactico"));
 	    }	
 	}
 
@@ -305,14 +315,19 @@ public class parser extends java_cup.runtime.lr_parser {
     public void unrecovered_syntax_error(Symbol cur_token) {
         if (cur_token.sym == sym.EOF) {
              System.out.println("SE ESPERABA UNA LLAVE FINAL");  
-             errores.add(new Errors("#",0,0,"Se llego al final, se esperaba el terminal de Cierre","Sintactico"));
+             errores.add(new Errors("",0,0,"Se llego al final, se esperaba el terminal de Cierre","Sintactico"));
 
         }else{
              Token token = (Token) cur_token.value;
 	     report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
-             errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba","Sintactico"));
+             errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"No se pude recuperar de manera correcta","Sintactico"));
         }
     }
+
+        @Override
+        public List<Integer> expected_token_ids() {
+                return super.expected_token_ids();
+        }
 
       public ArrayList<Errors> getErrores() {
         return errores;
@@ -321,15 +336,14 @@ public class parser extends java_cup.runtime.lr_parser {
     public void setErrores(ArrayList<Errors> errores) {
         this.errores = errores;
     } 
-
-    public TableSimbol getTabla() {
+     
+     public TableSimbol getTabla() {
         return tabla;
     }
 
     public void setTabla(TableSimbol tabla) {
         this.tabla = tabla;
     }
-     
    
 
 

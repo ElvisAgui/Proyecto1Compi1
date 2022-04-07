@@ -2,6 +2,7 @@
 package com.compiladores1.appserver.analizadores;
 import java_cup.runtime.*;
 import java.util.ArrayList;
+import java.util.List;
 import com.compiladores1.appserver.simbolTable.*;
 import com.compiladores1.appserver.errores.Errors;
 
@@ -24,12 +25,21 @@ parser code {:
 
         @Override
         public void syntax_error(Symbol tok) {
+                String esperado = "un terminal xd";
 	    try{
+                List<Integer> lista=expected_token_ids();
+                if(!lista.isEmpty()){
+                       if(lista.get(0)<=50){
+                               esperado = sym.terminalNames[lista.get(0)];
+                        } 
+                }
 	        Token token = (Token) tok.value;
                 report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
-                errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba","Sintactico",nombreClase,isProyecto1));
+                errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba "+esperado,"Sintactico",nombreClase,isProyecto1));
             }catch(Exception e){
-                e.printStackTrace();
+                Token token = (Token) tok.value;
+                report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+                errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba "+esperado,"Sintactico",nombreClase,isProyecto1));
 	    }	
 	}
 
@@ -37,18 +47,23 @@ parser code {:
               if(!token.getLexeme().equals(nombreClase)){
                       System.out.println("error de constructor");
                      report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
-                     errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba","Sintactico",nombreClase,isProyecto1));
+                     errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"No es constructor ","Sintactico",nombreClase,isProyecto1));
               }  
+        }
+
+        @Override
+        public List<Integer> expected_token_ids() {
+                return super.expected_token_ids();
         }
 
     public void unrecovered_syntax_error(Symbol cur_token) {
         if (cur_token.sym == sym.EOF) {
              System.out.println("SE ESPERABA UNA LLAVE FINAL"); 
-             errores.add(new Errors("#",0,0,"Se llego al final, se esperaba el terminal ----> }","Sintactico",nombreClase,isProyecto1));
+             errores.add(new Errors("",0,0,"Posiblemente no se encontro un ; o un ) o un } para la recuperacion adecuada","Sintactico",nombreClase,isProyecto1));
         }else{
              Token token = (Token) cur_token.value;
 	     report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
-             errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba","Sintactico",nombreClase,isProyecto1));
+             errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"errores de repeticion buscando mododo de recuperacion","Sintactico",nombreClase,isProyecto1));
         }
     }
 
@@ -120,9 +135,9 @@ start with  inicio;
         ;
 
 /*Gramatica para definir una clase*/
- def_clase ::= visibilidad comodin_Class LLAVEA sentencias_global LLAVEC    {: System.out.println("se llego al final de la clase con exito ---- }"); tabla.tosting();:}
-        | FINAL comodin_Class LLAVEA sentencias_global LLAVEC               {: System.out.println("se llego al final de la clase con exito ---- }"); tabla.tosting();:}
-        | comodin_Class LLAVEA sentencias_global LLAVEC                     {: System.out.println("se llego al final de la clase con exito ---- }"); tabla.tosting();:}
+ def_clase ::= visibilidad comodin_Class LLAVEA sentencias_global LLAVEC    {:tabla.tosting();:}
+        | FINAL comodin_Class LLAVEA sentencias_global LLAVEC               {:tabla.tosting();:}
+        | comodin_Class LLAVEA sentencias_global LLAVEC                     {:tabla.tosting();:}
         ;
 
 comodin_Class ::= CLASS IDD:nomClase                                        {: nombreClase = nomClase.getLexeme(); tabla.capturarClase(nombreClase);:}       
@@ -277,6 +292,7 @@ increment ::= MAS MAS PUNTOCOMA
 
 /*Gramatica para switch  */
  def_switch ::= SWITCH PARENTESISA IDD PARENTESISC LLAVEA cases LLAVEC
+        | SWITCH PARENTESISA IDD llamada_metod PARENTESISC LLAVEA cases LLAVEC
         ;
 
 /*Gramatica para casos dentro del switch  */
@@ -394,12 +410,17 @@ f_terminal ::= PARENTESISA e_inicial PARENTESISC
  def_and ::= logica AND logica
             | logica AND logica AND condition
             | logica AND logica OR condition
+            | logica AND NEGATION logica AND condition
+            | logica AND NEGATION logica OR condition
             ;
 
 /*Gramatica para logica de or*/
  def_or ::= logica OR logica
             | logica OR logica OR condition
             | logica OR logica AND condition
+            | logica OR NEGATION logica OR condition
+            | logica OR NEGATION logica AND condition
+            | logica OR NEGATION logica
             ;
 
 /*Gramatica para logica de condidicon del for*/
@@ -416,6 +437,8 @@ var_iterador ::= INT
 operation_for ::= IDD MAS MAS
             | IDD MENOS MENOS
             | IDD IGUAL condition
+            | IDD MAS IGUAL condition
+            | IDD MENOS IGUAL condition
             ;
 
 /*gramatica para el constructor*/
@@ -432,8 +455,8 @@ parametros ::= comodin_param
             | comodin_param COMA parametros
             | error  PARENTESISC                              {::} 
             ;
-comodin_param ::= tipo IDD:nomPar              {: variablesAux.add(new Variable(nomPar.getLexeme(),tipoAux));:}
-                | IDD:tipoPar IDD:nomPar       {: variablesAux.add(new Variable(nomPar.getLexeme(),tipoPar.getLexeme()));:}
+comodin_param ::= tipo IDD:nomPar              {:try{variablesAux.add(new Variable(nomPar.getLexeme(),tipoAux));}catch(Exception e){}:}
+                | IDD:tipoPar IDD:nomPar       {:try{variablesAux.add(new Variable(nomPar.getLexeme(),tipoPar.getLexeme()));}catch(Exception e){} :}
                 ;
 
 /*gramatica para llamada de metodos o funciones*/

@@ -1,6 +1,7 @@
 package com.compiladores1.appcliente.tableSimbol;
 
 import com.compiladores1.appcliente.analizadores.Token;
+import com.compiladores1.appcliente.erros.Errors;
 import java.util.ArrayList;
 
 /**
@@ -18,25 +19,44 @@ public class TableSimbol {
     public TableSimbol() {
     }
 
+    /**
+     * captura el score y lo combierte a dobuble
+     * @param score 
+     */
     public void capturaScore(String score) {
         try {
             this.score = Double.parseDouble(score);
         } catch (NumberFormatException e) {
             System.out.println("ERROR EN PARSEO DEL SCORE");
-            e.printStackTrace();
         }
     }
 
+    /**
+     * captura clase con su respetivo identificador
+     * @param nombre 
+     */
     public void caputraClase(String nombre) {
         if (nombre != null) {
             this.clases.add(new Clase(nombre));
         }
     }
 
+    /**
+     * captura la vaible con su nombre, funcion padre y tipo lo guarda en la tabla
+     * @param nombre
+     * @param tipo
+     * @param funcionP 
+     */
     public void capturaVar(String nombre, String tipo, String funcionP) {
         this.variables.add(new Variable(nombre, tipo, funcionP));
     }
 
+    /**
+     * captura los metodo encontrados y verifica que los parametros sena enteros 
+     * @param nombre
+     * @param tipo
+     * @param parametros 
+     */
     public void capturarMetodo(String nombre, String tipo, String parametros) {
         try {
             int numPar = Integer.parseInt(parametros);
@@ -46,82 +66,118 @@ public class TableSimbol {
         }
     }
 
-    public String recuperarNombreClass(int index, Token token) {
+    /**
+     * obtiene el nombre del arrglo de clases, valida el error semantico
+     * @param index
+     * @param token
+     * @param errores
+     * @return 
+     */
+    public String recuperarNombreClass(int index, Token token, ArrayList<Errors> errores) {
         String nomClase = "";
         if (index < clases.size()) {
             nomClase = clases.get(index).getNombre();
         } else {
-            System.out.println("Null pinter Exception xd fila: " + token.getLine() + 1);
+            String descripcion = "Null pinter Exception, intenta acceder a la varible global Nombre del arreglo Clase, con indice erroneo";
+            errores.add(new Errors(token.getLine(), token.getColumn()+1, descripcion, "Semantico", true));
         }
         return nomClase;
     }
 
-    public String recuperacionNomVar(int index, Token token) {
+    /**
+     * funcion encargada de obtener el nombre de la vaiable en el indecie n
+     * @param index
+     * @param token
+     * @param errores
+     * @return 
+     */
+    public String recuperacionNomVar(int index, Token token,ArrayList<Errors> errores) {
         String nomVar = "";
         if (index < variables.size()) {
             nomVar = variables.get(index).getNombre();
         } else {
-            System.out.println("Null pinter Exception xd columna: " + token.getColumn() + 1);
+            String descripcion = "Null pinter Exception, intenta acceder a la varible global Nombre del arreglo variables, con indice erroneo";
+            errores.add(new Errors(token.getLine(), token.getColumn()+1, descripcion, "Semantico", true));
         }
         return nomVar;
     }
 
-    public String recuperacionTipoVar(int index, Token token) {
+    /**
+     * funcion encargada de obtener el tipo de variable en el indice n
+     * @param index
+     * @param token
+     * @param errores
+     * @return 
+     */
+    public String recuperacionTipoVar(int index, Token token,ArrayList<Errors> errores) {
         String nomVar = "";
         if (index < variables.size()) {
             nomVar = variables.get(index).getTipo();
         } else {
-            System.out.println("Null pinter Exception xd columna: " + token.getColumn() + 1);
+            String descripcion = "Null pinter Exception, intenta acceder a la varible global tipo del arreglo variable, con indece erroneo";
+            errores.add(new Errors(token.getLine(), token.getColumn()+1, descripcion, "Semantico", true));       
         }
         return nomVar;
     }
 
-    public String recupearacionFuncionPadreVAr(int index, Token token) {
+    /**
+     * 
+     * @param index
+     * @param token
+     * @param errores
+     * @return 
+     */
+    public String recupearacionFuncionPadreVAr(int index, Token token,ArrayList<Errors> errores) {
         String funcionPadre = "";
         if (index < variables.size()) {
             funcionPadre = variables.get(index).getFuncionPadre();
         } else {
-            System.out.println("null pointer exelption variables funcionpadre");
+            String descripcion = "Null pinter Exception, intenta acceder a la varible global funcionPadre del arreglo variable, con indece erroneo";
+            errores.add(new Errors(token.getLine(), token.getColumn()+1, descripcion, "Semantico", true));       
         }
         return funcionPadre;
     }
 
-    public String recuperacionNombreMetodo(int index, Token token) {
+    public String recuperacionNombreMetodo(int index, Token token,ArrayList<Errors> errores) {
         String nombre = "";
         if (index < metodos.size()) {
             nombre = metodos.get(index).getNombre();
         } else {
-            System.out.println("null pointer exception en metodos nombre");
+            String descripcion = "Null pinter Exception, intenta acceder a la varible global Nombre del arreglo Metodos, con indece erroneo";
+            errores.add(new Errors(token.getLine(), token.getColumn()+1, descripcion, "Semantico", true));       
         }
         return nombre;
     }
 
-    public String recuperacionTipoMetodo(int index, Token token) {
+    public String recuperacionTipoMetodo(int index, Token token,ArrayList<Errors> errores) {
         String nombre = "";
         if (index < metodos.size()) {
             nombre = metodos.get(index).getTipo();
         } else {
-            System.out.println("null pointer exception en metodos tipo");
+            String descripcion = "Null pinter Exception, intenta acceder a la varible global Tipo del arreglo Metodos, con indece erroneo";
+            errores.add(new Errors(token.getLine(), token.getColumn()+1, descripcion, "Semantico", true));       
         }
         return nombre;
     }
 
-    public String recuperarTextoComentario(int index, Token token) {
+    public String recuperarTextoComentario(int index, Token token, ArrayList<Errors> errores) {
         String texto = "";
         if (index < comentarios.size()) {
             texto = comentarios.get(index);
         } else {
-            System.out.println("null pointer exception en metodos tipo");
+            String descripcion = "Null pinter Exception, intenta acceder a la varible global Texto del arreglo Comentarios, con indece erroneo";
+            errores.add(new Errors(token.getLine(), token.getColumn()+1, descripcion, "Semantico", true));       
         }
         return texto;
     }
 
-    public int recuperarParametrosMetodos(int index, Token token) {
+    public int recuperarParametrosMetodos(int index, Token token,ArrayList<Errors> errores) {
         int parametros = 0;
         if (index < metodos.size()) {
             parametros = metodos.get(index).getNumParametros();
         } else {
-            System.out.println("null pointer exception en metodos parametros");
+            String descripcion = "Null pinter Exception, intenta acceder a la varible global Parametros del arreglo Metodos, con indece erroneo";
+            errores.add(new Errors(token.getLine(), token.getColumn()+1, descripcion, "Semantico", true));       
         }
 
         return parametros;

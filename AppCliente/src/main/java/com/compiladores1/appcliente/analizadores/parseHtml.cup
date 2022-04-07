@@ -4,6 +4,9 @@ import java_cup.runtime.*;
 import com.compiladores1.appcliente.analizadores.*;
 import com.compiladores1.appcliente.tableSimbol.*;
 import com.compiladores1.appcliente.salidHtml.*;
+import com.compiladores1.appcliente.erros.Errors;
+import java.util.ArrayList;
+import java.util.List;
 
 
  /* Codigo java del parser*/
@@ -16,18 +19,30 @@ parser code {:
         private boolean isString=false;
         String operatiosss = "";
         private AccionesSalida actionSalid= new AccionesSalida();
-        
+        private ArrayList<Errors> errores = new ArrayList<>();
+
+
 	public Parserhtml(LexerHtml analizadorLexico) {
 		super(analizadorLexico);
 	}
 
         @Override
         public void syntax_error(Symbol tok) {
+	      String esperado = "un terminal xd";
 	    try{
+                List<Integer> lista=expected_token_ids();
+                if(!lista.isEmpty()){
+                       if(lista.get(0)<=50){
+                               esperado = sym.terminalNames[lista.get(0)];
+                       } 
+                }
 	        Token token = (Token) tok.value;
 	        report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
-	    }catch(Exception e){
-                e.printStackTrace();
+                errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba :"+esperado,"Sintactico"));
+            }catch(Exception e){
+	        Token token = (Token) tok.value;
+	        report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+                errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba :"+esperado,"Sintactico"));
 	    }	
 	}
 
@@ -35,12 +50,25 @@ parser code {:
     public void unrecovered_syntax_error(Symbol cur_token) {
         if (cur_token.sym == sym.EOF) {
              System.out.println("SE ESPERABA UNA LLAVE FINAL");  
+             errores.add(new Errors("",0,0,"Se llego al final, se esperaba el terminal de Cierre","Sintactico"));
         }else{
              Token token = (Token) cur_token.value;
 	     report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+             errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"No se pude recuperar de manera correcta","Sintactico"));        
         }
     }
+    public ArrayList<Errors> getErrores() {
+        return errores;
+    }
 
+    public void setErrores(ArrayList<Errors> errores) {
+        this.errores = errores;
+    } 
+
+        @Override
+        public List<Integer> expected_token_ids() {
+                return super.expected_token_ids();
+        }
 
    public void setTablaHtml(TableSimbolHtml tabla){
         this.tabla = tabla;
@@ -55,6 +83,14 @@ parser code {:
     public TableSimbol getTable(){
         return this.VarGlobal;
     }
+
+    public AccionesSalida getActionSalid() {
+        return actionSalid;
+    }
+
+    public void setActionSalid(AccionesSalida actionSalid) {
+        this.actionSalid = actionSalid;
+    }
 :};
 
 
@@ -67,11 +103,11 @@ terminal Token SCORE, CADENA, RESULT, VARIABLES, CLASES, NOMBRE,TIPO,FUNCION,MET
 
 /*seccion de No Terminales*/
 non terminal def_variable,variable_integer,variable_String,strin,items_coma,items,asignacion,iddVarComodin, titleRescursiver;
-non terminal inte,items_int,items_coma_B,asignacionInt,inicio,var_Asign,iddItemsComodin,iddComodinInt,operationaux, senteniasH1H2;
+non terminal inte,items_int,items_coma_B,asignacionInt,inicio,var_Asign,iddItemsComodin,iddComodinInt,operationaux;
 non terminal String operationString, concatenacion,subTerminalTabla,def_var_Globla, terminalTabla,operationAsig;
 non terminal Integer index, parametros,operation;
 non terminal title1, itemHtml, comodinIddHtml, usoVarGlobal, title2,columTitle,comodinH1H2, columDatos, fila_columna, validosTR, forAnidado;
-non terminal comodintitle, def_table, comodinTable, def_html_General, sentencias, sentencia,def_for, sentenciasFro,sentenciaFor;
+non terminal comodintitle, def_table, comodinTable, def_html_General, sentencias, sentencia,def_for, sentenciasFro,sentenciaFor,fila_columnaRecur;
 
 /* agregado de precedencias */
 
@@ -94,14 +130,14 @@ def_variable ::= variable_integer def_variable
 /*Gramatica para variables, asiganion o definicion int a, b=1,c;*/
 variable_String ::= strin items  
                 ;     
-strin ::= STRING IDD:identificador                                      {:tabla.capturarVarible("String",identificador.getLexeme());:}                                                        
+strin ::= STRING IDD:identificador                                      {:tabla.capturarVarible("String",identificador, errores);:}                                                        
         ;
 
 /*Gramatica para  items separadas por comas*/
  items_coma ::= iddItemsComodin items                                                        
                 | error  PUNTOCOMA                               
         ;
-iddItemsComodin ::= IDD:nomVar                                          {:tabla.capturarVarible("String",nomVar.getLexeme());:} 
+iddItemsComodin ::= IDD:nomVar                                          {:tabla.capturarVarible("String",nomVar, errores);:} 
         ;
 
 /*Gramatica para asiganar o tener recursividad*/
@@ -112,15 +148,16 @@ iddItemsComodin ::= IDD:nomVar                                          {:tabla.
         ; 
 
 
-asignacion ::=  IGUAL operationString:contenido                {:tabla.capturarContenido(contenido); System.out.println(contenido);:}           
+asignacion ::=  IGUAL operationString:contenido                {:tabla.capturarContenido(contenido);:}           
             ;
 
 operationString ::=  CADENA:cadena MAS concatenacion:contenido             {:RESULT= cadena.getLexeme()+contenido;:}      
                 | CADENA:contenido                                         {:RESULT = contenido.getLexeme();:}
                 | subTerminalTabla:contenido MAS concatenacion:contenido1  {:RESULT = contenido + contenido1;:}     
                 | subTerminalTabla:contenido                               {:RESULT = contenido; :}    
-                | IDD:identificador                                        {:RESULT = tabla.contenidoVariableString(identificador,true);:}
-                | IDD:identificador MAS concatenacion:contenido            {:RESULT = tabla.contenidoVariableString(identificador , true)+contenido;:}
+                | IDD:identificador                                        {:RESULT = tabla.contenidoVariableString(identificador,true,errores);:}
+                | IDD:identificador MAS concatenacion:contenido            {:RESULT = tabla.contenidoVariableString(identificador , true,errores)+contenido;:}
+                | error items
                 ;
             
 
@@ -129,13 +166,14 @@ concatenacion ::= concatenacion:contenido1 MAS concatenacion:contenido2         
 	        | DECIMAL:contenido                     {:RESULT = contenido.getLexeme();:}
                 | terminalTabla:contenido               {:RESULT = contenido;:}
                 | CADENA:contenido                      {:RESULT = contenido.getLexeme();:}
-                | IDD:identificador                     {:RESULT = tabla.contenidoVariableString(identificador,false);:}
-	        ;
+                | IDD:identificador                     {:RESULT = tabla.contenidoVariableString(identificador,false,errores);:}
+	        | error items
+                ;
 
 /*variables de tipo integer*/
 variable_integer ::= inte items_int  
                 ;     
-inte ::= INTEGER IDD:identificador                            {:tabla.capturarVarible("Integer",identificador.getLexeme());:} 
+inte ::= INTEGER IDD:identificador                            {:tabla.capturarVarible("Integer",identificador, errores);:} 
         ;
 
 items_int ::= asignacionInt PUNTOCOMA
@@ -147,65 +185,68 @@ items_int ::= asignacionInt PUNTOCOMA
  items_coma_B ::= iddComodinInt items_int                                                                                     
         ;
 
-iddComodinInt ::= IDD:identificador                            {:tabla.capturarVarible("Integer",identificador.getLexeme());:}
+iddComodinInt ::= IDD:identificador                            {:tabla.capturarVarible("Integer",identificador, errores);:}
                 ;        
 
 asignacionInt ::=  IGUAL operation:valOperation                 {:try{tabla.capturarContenido(String.valueOf(valOperation)); System.out.println(String.valueOf(valOperation));}catch(Exception e){e.printStackTrace();}:}
             ;
 
-operation ::= operation:numero1 MAS:operador operation:numero2	        {:try{RESULT = numero2+numero1;}catch(Exception e){e.printStackTrace();}:}	
-	| operation:numero1 MENOS:operador operation:numero2	        {:try{RESULT = numero1-numero2;}catch(Exception e){e.printStackTrace();}:}		
-	| operation:numero1 POR:operador operation:numero2		{:try{RESULT = numero2*numero1;}catch(Exception e){e.printStackTrace();}:}		
-	| operation:numero1 DIVISION:operador operation:numero2		{:try{RESULT = numero1/numero2;}catch(Exception e){e.printStackTrace();}:}	
-	| ENTERO:num							{:try{RESULT = Integer.valueOf( num.getLexeme());}catch(Exception e){e.printStackTrace();}:}						
-	| DECIMAL:num                                                   {:try{RESULT = (int)Double.parseDouble( num.getLexeme());}catch(Exception e){e.printStackTrace();}:}
+operation ::= operation:numero1 MAS:operador operation:numero2	        {:try{RESULT = numero2+numero1;}catch(Exception e){}:}	
+	| operation:numero1 MENOS:operador operation:numero2	        {:try{RESULT = numero1-numero2;}catch(Exception e){}:}		
+	| operation:numero1 POR:operador operation:numero2		{:try{RESULT = numero2*numero1;}catch(Exception e){}:}		
+	| operation:numero1 DIVISION:operador operation:numero2		{:try{RESULT = numero1/numero2;}catch(Exception e){}:}	
+	| ENTERO:num							{:try{RESULT = Integer.valueOf( num.getLexeme());}catch(Exception e){}:}						
+	| DECIMAL:num                                                   {:try{RESULT = (int)Double.parseDouble( num.getLexeme());}catch(Exception e){}:}
         | parametros:numero                                             {:RESULT= numero;:}      
-        | IDD:identificador			                        {:RESULT = tabla.contenidNumeroVariable(identificador);:}										
-	| PARENTESISA operation:operacion PARENTESISC                   {:try{RESULT = operacion;}catch(Exception e){e.printStackTrace();}:}				 														
-	;
+        | IDD:identificador			                        {:RESULT = tabla.contenidNumeroVariable(identificador, errores);:}										
+	| PARENTESISA operation:operacion PARENTESISC                   {:try{RESULT = operacion;}catch(Exception e){}:}				 														
+	| error items_int
+        ;
 
 /*Llamada a variables globales*/
 subTerminalTabla ::= RESULT PUNTO def_var_Globla:contenido                              {:RESULT = contenido;:}
                 ;
 def_var_Globla ::= SCORE:score                                                          {:RESULT = ""+VarGlobal.getScore();:}
-                | CLASES  CORCHETEA:pos index:indice CORCHETEC PUNTO NOMBRE        {:RESULT = VarGlobal.recuperarNombreClass(indice, pos);:}
-                | VARIABLES  CORCHETEA:pos index:indice CORCHETEC PUNTO NOMBRE     {:RESULT = VarGlobal.recuperacionNomVar(indice,pos);:}
-                | VARIABLES  CORCHETEA:pos index:indice CORCHETEC PUNTO TIPO       {:RESULT = VarGlobal.recuperacionTipoVar(indice,pos);:}
-                | VARIABLES  CORCHETEA:pos index:indice CORCHETEC PUNTO FUNCION    {:RESULT = VarGlobal.recupearacionFuncionPadreVAr(indice, pos);:}
-                | METODOS  CORCHETEA:pos index:indice CORCHETEC PUNTO NOMBRE       {:RESULT = VarGlobal.recuperacionNombreMetodo(indice, pos);:}
-                | METODOS  CORCHETEA:pos index:indice CORCHETEC PUNTO TIPO         {:RESULT = VarGlobal.recuperacionTipoMetodo(indice,pos);:}
-                | COMENTARIOS  CORCHETEA:pos index:indice CORCHETEC PUNTO TEXTO    {:RESULT = VarGlobal.recuperarTextoComentario(indice, pos);:}
+                | CLASES CORCHETEA:pos index:indice CORCHETEC PUNTO NOMBRE        {:RESULT = VarGlobal.recuperarNombreClass(indice, pos, errores);:}
+                | VARIABLES CORCHETEA:pos index:indice CORCHETEC PUNTO NOMBRE     {:RESULT = VarGlobal.recuperacionNomVar(indice,pos, errores);:}
+                | VARIABLES CORCHETEA:pos index:indice CORCHETEC PUNTO TIPO       {:RESULT = VarGlobal.recuperacionTipoVar(indice,pos, errores);:}
+                | VARIABLES CORCHETEA:pos index:indice CORCHETEC PUNTO FUNCION    {:RESULT = VarGlobal.recupearacionFuncionPadreVAr(indice, pos, errores);:}
+                | METODOS CORCHETEA:pos index:indice CORCHETEC PUNTO NOMBRE       {:RESULT = VarGlobal.recuperacionNombreMetodo(indice, pos, errores);:}
+                | METODOS CORCHETEA:pos index:indice CORCHETEC PUNTO TIPO         {:RESULT = VarGlobal.recuperacionTipoMetodo(indice,pos, errores);:}
+                | COMENTARIOS  CORCHETEA:pos index:indice CORCHETEC PUNTO TEXTO    {:RESULT = VarGlobal.recuperarTextoComentario(indice, pos, errores);:}
+                | error 
                 ;
 
 terminalTabla ::= RESULT PUNTO def_var_Globla:contenido                 {:RESULT = contenido;:}
             | RESULT PUNTO parametros:contenido                         {:RESULT = ""+ contenido;:}   
             ;
-parametros ::=  METODOS  CORCHETEA:pos index:indice CORCHETEC PUNTO PARAMTETROS    {:RESULT = VarGlobal.recuperarParametrosMetodos(indice, pos);:}
+parametros ::=  METODOS  CORCHETEA:pos index:indice CORCHETEC PUNTO PARAMTETROS    {:RESULT = VarGlobal.recuperarParametrosMetodos(indice, pos,errores);:}
             ;
 
-index ::= ENTERO:numero                         {:try{RESULT = Integer.valueOf( numero.getLexeme());}catch(Exception e){RESULT =0;e.printStackTrace();}:}
-        |IDD: numero                            {:RESULT = tabla.contenidNumeroVariable(numero);:}
+index ::= ENTERO:numero                         {:try{RESULT = Integer.valueOf( numero.getLexeme());}catch(Exception e){RESULT =0;}:}
+        |IDD: numero                            {:RESULT = tabla.contenidNumeroVariable(numero, errores);:}
         ;
 
 /*asignacion de cualquier variable*/
 
-var_Asign ::= iddVarComodin IGUAL operationAsig:contenido PUNTOCOMA    {:tabla.capturarConteniYadeclarad(contenido, isString); System.out.println(contenido);tabla.setReporError(true);:} 
+var_Asign ::= iddVarComodin IGUAL operationAsig:contenido PUNTOCOMA    {:tabla.capturarConteniYadeclarad(contenido, isString, errores); tabla.setReporError(true);:} 
         ;
 
-iddVarComodin ::= IDD:identificador                             {:isString=tabla.tipoAsignacion(identificador);:}
+iddVarComodin ::= IDD:identificador                             {:isString=tabla.tipoAsignacion(identificador, errores);:}
                 ;
 
-operationAsig ::= operationAsig:numero1 MAS:operador operationAsig:numero2	{:RESULT = tabla.accionSuma(isString, numero1,numero2,operador);:}	
-	| operationAsig:numero1 MENOS:operador operationAsig:numero2	        {:RESULT = tabla.accionResta(isString, numero1,numero2,operador);:}		
-	| operationAsig:numero1 POR:operador operationAsig:numero2		{:RESULT = tabla.accionMultiplicar(isString, numero1,numero2,operador);:}		
-	| operationAsig:numero1 DIVISION:operador operationAsig:numero2		{:RESULT = tabla.accionDividir(isString, numero1,numero2,operador);:}
+operationAsig ::= operationAsig:numero1 MAS:operador operationAsig:numero2	{:RESULT = tabla.accionSuma(isString, numero1,numero2,operador,errores);:}	
+	| operationAsig:numero1 MENOS:operador operationAsig:numero2	        {:RESULT = tabla.accionResta(isString, numero1,numero2,operador, errores);:}		
+	| operationAsig:numero1 POR:operador operationAsig:numero2		{:RESULT = tabla.accionMultiplicar(isString, numero1,numero2,operador, errores);:}		
+	| operationAsig:numero1 DIVISION:operador operationAsig:numero2		{:RESULT = tabla.accionDividir(isString, numero1,numero2,operador, errores);:}
 	| ENTERO:contenido                                                      {:RESULT = contenido.getLexeme();:}					
 	| DECIMAL:contenido                                                     {:RESULT = contenido.getLexeme();:}
         | terminalTabla:contenido                                               {:RESULT = contenido;:}
         | CADENA:contenido                                                      {:RESULT = contenido.getLexeme();:}
-        | IDD:num			                                        {:RESULT = tabla.contenidoVariableString(num,false);:}										
+        | IDD:num			                                        {:RESULT = tabla.contenidoVariableString(num,false,errores);:}										
 	| operationaux                                                          {:try{RESULT = operatiosss;}catch(Exception e){e.printStackTrace();}:}				 														{::}
-	;
+	| error PUNTOCOMA
+        ;
 
 operationaux ::= PARENTESISA operation:operacion PARENTESISC                    {:operatiosss= ""+operacion;:}
 ;
@@ -217,6 +258,7 @@ title1 ::= H1ABRE itemHtml  H1CIERRE
 
 titleRescursiver ::= comodintitle titleRescursiver
                 | comodintitle
+                | error
                 ;
 
 itemHtml ::= comodinIddHtml itemHtml
@@ -248,7 +290,7 @@ comodinIddHtml ::= IDD:contenido                {:actionSalid.setContenidoTem(co
                 | MENOR:contenido               {:actionSalid.setContenidoTem(contenido.getLexeme());:}
                 ;                       
 
-usoVarGlobal ::= COMODIN  PARENTESISA IDD:identificador PARENTESISC COMODIN         {:actionSalid.setContenidoTem(tabla.contenidoVariableString(identificador,false));:}
+usoVarGlobal ::= COMODIN  PARENTESISA IDD:identificador PARENTESISC COMODIN         {:actionSalid.setContenidoTem(tabla.contenidoVariableString(identificador,false,errores));:}
                 | COMODIN PARENTESISA terminalTabla:contenido PARENTESISC COMODIN   {:actionSalid.setContenidoTem(contenido);:}      
                 ;
 
@@ -276,10 +318,12 @@ comodintitle ::= title1
 
 columDatos ::= TDABRE titleRescursiver TDCIERRE {:actionSalid.capturarTD();:}
         | TDABRE  TDCIERRE                      {:actionSalid.capturarTD();:}
+        | error TRCIERRE
         ;
 
 fila_columna ::= TRABRE validosTR  TRCIERRE     {:actionSalid.capturarTR();:}
         | TRABRE   TRCIERRE
+        | error TABLACIERRE
         ;
 
 validosTR ::= columDatos validosTR
@@ -290,7 +334,12 @@ validosTR ::= columDatos validosTR
         | comodintitle
         ;
 
-forAnidado ::= FORABRE ITERADOR DOSPUNTO IDD HASTA DOSPUNTO IDD PUNTOCOMA MAYOR fila_columna FORCIERRE
+ fila_columnaRecur ::= fila_columna fila_columnaRecur
+                | fila_columna
+                | error FORCIERRE
+                ;
+
+forAnidado ::= FORABRE ITERADOR DOSPUNTO IDD HASTA DOSPUNTO IDD PUNTOCOMA MAYOR fila_columnaRecur FORCIERRE
         | FORABRE ITERADOR DOSPUNTO IDD HASTA DOSPUNTO IDD PUNTOCOMA MAYOR  FORCIERRE
         ;
 
@@ -308,6 +357,7 @@ comodinTable ::= fila_columna comodinTable
 
 def_html_General ::= HTMABRE sentencias HTMCIERRE               {:actionSalid.tostring();:}
                 | HTMABRE HTMCIERRE
+                | error THCIERRE
                 ;
 
 sentencias ::= sentencia sentencias
