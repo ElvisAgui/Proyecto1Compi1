@@ -23,7 +23,6 @@ public class GeneradoJson {
     }
 
     public String generarJson() {
-        proyecto.tosting();
         String json = "{\n";
         json += "\t" + "Score:\"" + score + "\",\n\t";
         json += jsonClases();

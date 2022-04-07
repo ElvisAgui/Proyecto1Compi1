@@ -330,7 +330,7 @@ validosTR ::= columDatos validosTR
         | columDatos
         | columTitle  
         | comodintitle validosTR
-        | comodintitle
+        | comodintitle          
         ;
 
  fila_columnaRecur ::= fila_columna fila_columnaRecur
