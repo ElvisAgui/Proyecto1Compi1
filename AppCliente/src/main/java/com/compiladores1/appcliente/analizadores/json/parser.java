@@ -302,11 +302,11 @@ public class parser extends java_cup.runtime.lr_parser {
                        } 
                 }
 	        Token token = (Token) tok.value;
-	        report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+	        report_error("",null);
                 errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba :"+esperado,"Sintactico"));
             }catch(Exception e){
                 Token token = (Token) tok.value;
-	        report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+	        report_error("",null);
                 errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba :"+esperado,"Sintactico"));
 	    }	
 	}
@@ -319,7 +319,7 @@ public class parser extends java_cup.runtime.lr_parser {
 
         }else{
              Token token = (Token) cur_token.value;
-	     report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+	     report_error("",null);
              errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"No se pude recuperar de manera correcta","Sintactico"));
         }
     }
@@ -389,7 +389,7 @@ class CUP$parser$actions {
           case 1: // inicio ::= LLAVEA componentes LLAVEC 
             {
               Object RESULT =null;
-		tabla.tosting();
+		
               CUP$parser$result = parser.getSymbolFactory().newSymbol("inicio",0, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;

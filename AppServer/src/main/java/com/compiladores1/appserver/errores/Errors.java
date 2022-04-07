@@ -49,7 +49,6 @@ public class Errors implements Serializable {
                 textAreaConsole.append("\n-------------------------------------------------------------------------------ERRORES DEL PROYECTO 2----------------------------------------------------------------------\n");
                 titulo2 = true;
             }
-            System.out.println("Error : " + errores.get(i).getDescripcion());
             textAreaConsole.append("\n" + errores.get(i).descripcionError());
         }
     }

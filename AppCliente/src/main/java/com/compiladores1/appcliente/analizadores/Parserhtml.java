@@ -865,11 +865,11 @@ public class Parserhtml extends java_cup.runtime.lr_parser {
                        } 
                 }
 	        Token token = (Token) tok.value;
-	        report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+	        report_error("",null);
                 errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba :"+esperado,"Sintactico"));
             }catch(Exception e){
 	        Token token = (Token) tok.value;
-	        report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+	        report_error("",null);
                 errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba :"+esperado,"Sintactico"));
 	    }	
 	}
@@ -877,11 +877,10 @@ public class Parserhtml extends java_cup.runtime.lr_parser {
 
     public void unrecovered_syntax_error(Symbol cur_token) {
         if (cur_token.sym == sym.EOF) {
-             System.out.println("SE ESPERABA UNA LLAVE FINAL");  
              errores.add(new Errors("",0,0,"Se llego al final, se esperaba el terminal de Cierre","Sintactico"));
         }else{
              Token token = (Token) cur_token.value;
-	     report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+	     report_error("",null);
              errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"No se pude recuperar de manera correcta","Sintactico"));        
         }
     }
@@ -893,7 +892,7 @@ public class Parserhtml extends java_cup.runtime.lr_parser {
         this.errores = errores;
     } 
 
- @Override
+        @Override
         public List<Integer> expected_token_ids() {
                 return super.expected_token_ids();
         }
@@ -920,8 +919,6 @@ public class Parserhtml extends java_cup.runtime.lr_parser {
         this.actionSalid = actionSalid;
     }
 
-    
-    
 
 /** Cup generated class to encapsulate user supplied action code.*/
 @SuppressWarnings({"rawtypes", "unchecked", "unused"})
@@ -2594,7 +2591,7 @@ class CUP$Parserhtml$actions {
           case 147: // def_html_General ::= HTMABRE sentencias HTMCIERRE 
             {
               Object RESULT =null;
-		actionSalid.tostring();
+		
               CUP$Parserhtml$result = parser.getSymbolFactory().newSymbol("def_html_General",41, ((java_cup.runtime.Symbol)CUP$Parserhtml$stack.elementAt(CUP$Parserhtml$top-2)), ((java_cup.runtime.Symbol)CUP$Parserhtml$stack.peek()), RESULT);
             }
           return CUP$Parserhtml$result;

@@ -27,7 +27,6 @@ public class TableSimbol {
         try {
             this.score = Double.parseDouble(score);
         } catch (NumberFormatException e) {
-            System.out.println("ERROR EN PARSEO DEL SCORE");
         }
     }
 

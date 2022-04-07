@@ -59,7 +59,6 @@ public class SocketServidor {
                 recibirProyectos();
                 break;
             case PETICION:
-                System.out.println("Peticion simple algo esta conectando");
                 break;
             default:
                 break;

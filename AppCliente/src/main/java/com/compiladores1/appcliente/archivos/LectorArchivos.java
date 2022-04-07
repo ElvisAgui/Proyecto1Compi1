@@ -62,7 +62,6 @@ public class LectorArchivos {
             BufferedReader br = new BufferedReader(fr);
             String linea;
             while ((linea = br.readLine()) != null) {
-                System.out.println(linea);
                 File nuevo = new File(linea);
                 if (nuevo.getName().endsWith("json")) {
                     this.textJson = capturarContenido(nuevo);

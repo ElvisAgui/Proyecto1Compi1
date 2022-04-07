@@ -34,11 +34,11 @@ parser code {:
                         } 
                 }
 	        Token token = (Token) tok.value;
-                report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+                report_error("",null);
                 errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba "+esperado,"Sintactico",nombreClase,isProyecto1));
             }catch(Exception e){
                 Token token = (Token) tok.value;
-                report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+                report_error("",null);
                 errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba "+esperado,"Sintactico",nombreClase,isProyecto1));
 	    }	
 	}
@@ -58,11 +58,10 @@ parser code {:
 
     public void unrecovered_syntax_error(Symbol cur_token) {
         if (cur_token.sym == sym.EOF) {
-             System.out.println("SE ESPERABA UNA LLAVE FINAL"); 
              errores.add(new Errors("",0,0,"Posiblemente no se encontro un ; o un ) o un } para la recuperacion adecuada","Sintactico",nombreClase,isProyecto1));
         }else{
              Token token = (Token) cur_token.value;
-	     report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+	     report_error("",null);
              errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"errores de repeticion buscando mododo de recuperacion","Sintactico",nombreClase,isProyecto1));
         }
     }
@@ -135,9 +134,9 @@ start with  inicio;
         ;
 
 /*Gramatica para definir una clase*/
- def_clase ::= visibilidad comodin_Class LLAVEA sentencias_global LLAVEC    {:tabla.tosting();:}
-        | FINAL comodin_Class LLAVEA sentencias_global LLAVEC               {:tabla.tosting();:}
-        | comodin_Class LLAVEA sentencias_global LLAVEC                     {:tabla.tosting();:}
+ def_clase ::= visibilidad comodin_Class LLAVEA sentencias_global LLAVEC    {::}
+        | FINAL comodin_Class LLAVEA sentencias_global LLAVEC               {::}
+        | comodin_Class LLAVEA sentencias_global LLAVEC                     {::}
         ;
 
 comodin_Class ::= CLASS IDD:nomClase                                        {: nombreClase = nomClase.getLexeme(); tabla.capturarClase(nombreClase);:}       

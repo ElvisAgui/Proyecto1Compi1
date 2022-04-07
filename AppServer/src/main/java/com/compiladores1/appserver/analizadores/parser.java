@@ -1052,11 +1052,11 @@ public class parser extends java_cup.runtime.lr_parser {
                         } 
                 }
 	        Token token = (Token) tok.value;
-                report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+                report_error("",null);
                 errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba "+esperado,"Sintactico",nombreClase,isProyecto1));
             }catch(Exception e){
                 Token token = (Token) tok.value;
-                report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+                report_error("",null);
                 errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba "+esperado,"Sintactico",nombreClase,isProyecto1));
 	    }	
 	}
@@ -1076,11 +1076,10 @@ public class parser extends java_cup.runtime.lr_parser {
 
     public void unrecovered_syntax_error(Symbol cur_token) {
         if (cur_token.sym == sym.EOF) {
-             System.out.println("SE ESPERABA UNA LLAVE FINAL"); 
              errores.add(new Errors("",0,0,"Posiblemente no se encontro un ; o un ) o un } para la recuperacion adecuada","Sintactico",nombreClase,isProyecto1));
         }else{
              Token token = (Token) cur_token.value;
-	     report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+	     report_error("",null);
              errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"errores de repeticion buscando mododo de recuperacion","Sintactico",nombreClase,isProyecto1));
         }
     }
@@ -1251,7 +1250,7 @@ class CUP$parser$actions {
           case 12: // def_clase ::= visibilidad comodin_Class LLAVEA sentencias_global LLAVEC 
             {
               Object RESULT =null;
-		tabla.tosting();
+		
               CUP$parser$result = parser.getSymbolFactory().newSymbol("def_clase",3, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-4)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1260,7 +1259,7 @@ class CUP$parser$actions {
           case 13: // def_clase ::= FINAL comodin_Class LLAVEA sentencias_global LLAVEC 
             {
               Object RESULT =null;
-		tabla.tosting();
+		
               CUP$parser$result = parser.getSymbolFactory().newSymbol("def_clase",3, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-4)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1269,7 +1268,7 @@ class CUP$parser$actions {
           case 14: // def_clase ::= comodin_Class LLAVEA sentencias_global LLAVEC 
             {
               Object RESULT =null;
-		tabla.tosting();
+		
               CUP$parser$result = parser.getSymbolFactory().newSymbol("def_clase",3, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-3)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;

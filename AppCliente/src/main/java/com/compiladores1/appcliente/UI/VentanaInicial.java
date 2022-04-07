@@ -414,13 +414,11 @@ public class VentanaInicial extends javax.swing.JFrame {
         selectorCarpeta.setAcceptAllFileFilterUsed(false);
         if (selectorCarpeta.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             File carpetaSelec = selectorCarpeta.getSelectedFile();
-            System.out.println(carpetaSelec);
             String[] lista = carpetaSelec.list();
             selectProyect2jLabel.setText(carpetaSelec.getName());
             ArrayList<File> archivosP2 = new ArrayList<>();
 
             for (int i = 0; i < lista.length; i++) {
-                System.out.println(lista[i]);
                 File nuevo = new File(carpetaSelec, lista[i]);
 
                 archivosP2.add(nuevo);
@@ -439,12 +437,10 @@ public class VentanaInicial extends javax.swing.JFrame {
         selectorCarpeta.setAcceptAllFileFilterUsed(false);
         if (selectorCarpeta.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             File carpetaSelec = selectorCarpeta.getSelectedFile();
-            System.out.println(carpetaSelec);
             String[] lista = carpetaSelec.list();
             selectProyect1jLabel.setText(carpetaSelec.getName());
             ArrayList<File> archivosP1 = new ArrayList<>();
             for (int i = 0; i < lista.length; i++) {
-                System.out.println(lista[i]);
                 File nuevo = new File(carpetaSelec, lista[i]);
                 archivosP1.add(nuevo);
             }

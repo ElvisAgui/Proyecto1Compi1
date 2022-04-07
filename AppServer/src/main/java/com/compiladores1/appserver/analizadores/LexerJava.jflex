@@ -194,12 +194,14 @@ CARACTER = "'"[^]"'"
 {FINMULTILINEA} {yybegin(YYINITIAL); this.tabla.getComentarios().add(comentario); comentario = "";}
 {POR}       {;}
 (\n)		{;}
+{COMILLAS}  {;}
 [^] {comentario+=yytext();}
 }
 
 <COMENTLINEA>{
 (\n) {yybegin(YYINITIAL); this.tabla.getComentarios().add(comentario); comentario = "";}
 [^] {comentario+=yytext();}
+{COMILLAS}  {;}
 }
 
 [^] {errores.add(new Errors(yytext(),yyline + 1,yycolumn + 1,"No existe en el lenguaje","Lexico","---",isProyecto1));}

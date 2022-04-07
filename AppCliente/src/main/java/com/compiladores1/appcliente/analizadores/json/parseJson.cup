@@ -40,11 +40,11 @@ parser code {:
                        } 
                 }
 	        Token token = (Token) tok.value;
-	        report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+	        report_error("",null);
                 errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba :"+esperado,"Sintactico"));
             }catch(Exception e){
                 Token token = (Token) tok.value;
-	        report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+	        report_error("",null);
                 errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"Se esperaba :"+esperado,"Sintactico"));
 	    }	
 	}
@@ -57,7 +57,7 @@ parser code {:
 
         }else{
              Token token = (Token) cur_token.value;
-	     report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+	     report_error("",null);
              errores.add(new Errors(token.getLexeme(),token.getLine(),token.getColumn(),"No se pude recuperar de manera correcta","Sintactico"));
         }
     }
@@ -97,7 +97,7 @@ non terminal funcion_padre, componentes, fun_oblig, fun_Items, def_metodo, metod
 
 start with  inicio;
 
-inicio ::= LLAVEA componentes LLAVEC                            {:tabla.tosting();:}
+inicio ::= LLAVEA componentes LLAVEC                            {::}
                 ;
 
 componentes ::= def_score def_clase def_variable def_metodo def_coment
@@ -208,8 +208,8 @@ text ::= TEXTO DOSPUNTO COMILLAS idd_Coment COMILLAS    {:tabla.capturarComentar
 
 idd_Coment ::= comodinComent idd_Coment                                 
             | comodinComent                      
-            ;
-
+            ; 
+                        
 comodinComent ::= IDD:comentario                           {:segComenario+=" " +comentario.getLexeme()+" ";:}                  
                 | ALGO:comentario                          {:segComenario+=" "+ comentario.getLexeme()+" ";:}
                 | COMA :comentario                         {:segComenario+=" "+ comentario.getLexeme()+" ";:}
